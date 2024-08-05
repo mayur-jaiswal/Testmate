@@ -9,12 +9,13 @@ import Contact from './components/Contact';
 import Login from './components/Login';
 import Register from './components/Register'
 import StudentDashboard from './pages/StudentDashboard';
+import TeacherDashboard from './pages/TeacherDashboard';
 
 function App() {
   return (
     <Router>
-      <div>
-        <NavigationBar />
+      <div id="Whole">
+        <NavigationBar /> 
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -22,7 +23,8 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<StudentDashboard />} />
+          <Route path="/student-dashboard" element={<StudentDashboard />} />
+          <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
         </Routes>
         <Footer />
       </div>

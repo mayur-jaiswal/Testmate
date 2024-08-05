@@ -13,8 +13,9 @@ function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/register', { email, username, password, name, role, branch });
+      const response = await axios.post('http://localhost:8000/api/users/createUser', { email, username, password, name, role, branch });
       console.log(response.data);
+      alert('User Created Successfully');
     } catch (error) {
       console.error('Registration error:', error);
     }

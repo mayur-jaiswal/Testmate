@@ -5,24 +5,23 @@ import './Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState(''); 
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e) => {    
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8000/api/users/loginUser', { email, password });
       console.log(response.data);
 
-      if (response.data.success) {
+      if (response.data.user.role ==='teacher') {
         // Store the token in localStorage
         localStorage.setItem('token', response.data.token);
 
         // Redirect to the home page or dashboard
-        navigate('/dashboard');
+        navigate('/teacher-dashboard');
       } else {
-        // Handle unsuccessful login
-        alert('Login failed. Please check your credentials and try again.');
+        navigate('/student-dashboard');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -35,7 +34,7 @@ function Login() {
       <h1>Login</h1>
       <form onSubmit={handleLogin}>
         <div>
-          <label>email</label>
+          <label>Email</label>
           <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
         <div>
