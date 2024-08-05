@@ -1,0 +1,47 @@
+/* NavigationBar.css */
+.navbar {
+  background-color: #333;
+  padding: 1rem;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  color: #fff;
+  font-size: 1.5rem;
+  text-decoration: none;
+}
+
+.navbar-menu {
+  list-style: none;
+  display: flex;
+}
+
+.navbar-item {
+  margin: 0 1rem;
+}
+
+.navbar-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.navbar-link:hover {
+  text-decoration: underline;
+}
+
+.navbar-signin {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  margin-left: 1rem;
+}
+
+.navbar-signin:hover {
+  text-decoration: underline;
+}

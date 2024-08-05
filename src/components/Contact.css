@@ -1,0 +1,16 @@
+/* Contact.css */
+.contact {
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .contact h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .contact p {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  

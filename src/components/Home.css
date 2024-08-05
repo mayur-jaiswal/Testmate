@@ -1,0 +1,46 @@
+/* Basic reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.home {
+  min-height: 100vh;
+  background: url('../../public/background.jpg') no-repeat center center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+}
+
+.welcome {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 2rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+}
+
+.faqs {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 800px;
+  width: 100%;
+}
+
+.faq {
+  margin-bottom: 1.5rem;
+}
+
+.faq h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.faq p {
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
