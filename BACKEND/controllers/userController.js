@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 require('dotenv').config();
+const nodemailer = require('nodemailer');
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -31,6 +32,8 @@ exports.createUser = async (req, res) => {
       branch,
     });
 
+    await sendWelcomeEmail(email, name);
+
     res.status(201).json({
       success: true,
       message: 'User created successfully',
@@ -46,6 +49,31 @@ exports.createUser = async (req, res) => {
   }
 };
 
+const sendWelcomeEmail = async (userEmail, userName) => {
+  // Create a transporter using SMTP or a service like Gmail
+  let transporter = nodemailer.createTransport({
+    service: 'gmail', // Or use your preferred email provider
+    auth: {
+      user: 'testmate164@gmail.com', // Your email
+      pass: 'zxyk ilea piek vxbt', // Your email password or app password
+    },
+  });
+   // Define the email options
+   let mailOptions = {
+    from: 'testmate164@gmail.com', // Sender address
+    to: userEmail, // Receiver email
+    subject: 'Welcome to Our Platform',
+    text: `Hello ${userName},\n\nWelcome to our platform! We're excited to have you onboard.\n\nBest regards,\nThe Team Testmate`,
+  };
+
+  // Send the email
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Welcome email sent');
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+};
 
 // User login
 exports.login = async (req, res) => {
@@ -87,9 +115,11 @@ exports.login = async (req, res) => {
         httpOnly: true,
       };
 
-      // Set the token and branch cookies
+      // Set the token and branch cookies 
       res.cookie('token', token, options);
       res.cookie('branch', user.branch, { httpOnly: true, ...options });
+      
+      console.log("COOKIE SENT SUCESSFULLY");
 
       return res.status(200).json({
         success: true,

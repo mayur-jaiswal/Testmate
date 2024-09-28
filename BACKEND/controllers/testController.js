@@ -7,6 +7,8 @@ const TestAttempt = require('../models/TestAttempt');
 const Response = require('../models/response');
 const Result = require('../models/Result');
 const User = require('../models/User'); // Assuming you need user data
+  
+
 
 // Create a new test
 exports.createTest = async (req, res) => {
@@ -135,10 +137,10 @@ exports.getTestAttemptResults = async (req, res) => {
 
 exports.getTests = async (req, res) => {
   try {
-    const { type, title, chapter, subject } = req.query;
-    const branch = req.branch;
+    const { type, title, chapter, subject } = req.query;  
+    // const branch = req.branch;
 
-    const filter = { branch };
+    const filter = {};
 
     if (type) {
       const validTypes = ['GATE_PYQ', 'MOCK_TEST', 'CUSTOM_TEST', 'CHAPTER_WISE', 'SUBJECT_WISE'];
@@ -162,6 +164,7 @@ exports.getTests = async (req, res) => {
 
     const tests = await Test.findAll({
       where: filter,
+      
       attributes: ['id', 'title', 'description', 'chapter', 'subject', 'created_at'],
       order: [['created_at', 'DESC']],
     });
@@ -175,7 +178,11 @@ exports.getTests = async (req, res) => {
 
 
 
+
+
+
 exports.startTest = async (req, res) => {
+  console.log('Request body for starting test:', req.body);
   const { user_id, test_id } = req.body;
 
   try {
@@ -195,7 +202,7 @@ exports.startTest = async (req, res) => {
       test_id,
       started_at: new Date(),
     });
-    //console.log(testAttempt);
+    console.log("current test attempt id is ",testAttempt);
 
     // Get all questions for the test
     const questions = await Question.findAll({
@@ -206,7 +213,9 @@ exports.startTest = async (req, res) => {
     res.status(200).json({ 
       success: true,
       message: 'Test started successfully',
-      testAttempt,
+      testName:test.title,
+      testDuration:test.duration,
+      testAttempt,  
       questions,
     });
   } catch (error) {
@@ -216,13 +225,14 @@ exports.startTest = async (req, res) => {
       message: 'An error occurred while starting the test',
     });
   }
-};
+};  
 
 exports.submitResponse = async (req, res) => {
-  const { attempt_id, question_id, option_ids, numerical_response } = req.body;
+  console.log('Request body for submitting test:', req.body);
+  const { attempt_id, test_id, user_id, responses } = req.body;
 
   try {
-    // Check if the attempt exists
+   
     const testAttempt = await TestAttempt.findByPk(attempt_id);
     if (!testAttempt) {
       return res.status(404).json({
@@ -230,51 +240,57 @@ exports.submitResponse = async (req, res) => {
         message: 'Test attempt not found',
       });
     }
-    console.log("Test attempt found")
-    // Create responses for multiple selected options if option_ids is an array
-    if (Array.isArray(option_ids)) {
-      const responses = [];
-      for (const option_id of option_ids) {
-        const response = await Response.create({
+    console.log("Test attempt found");
+
+    // Array to hold response creation promises
+    const responsePromises = [];
+
+    // Iterate over the responses object
+    for (const [question_id, responseValue] of Object.entries(responses)) {
+      // Determine if the response is an option (MCQ), numerical, or multiple select (MSQ)
+      if (Array.isArray(responseValue)) {
+        // Handle MSQ: responseValue is an array of option_ids
+        for (const option_id of responseValue) {
+          const responsePromise = Response.create({
+            attempt_id,
+            question_id: parseInt(question_id, 10), // Ensure question_id is an integer
+            option_id: option_id, // Set the option_id for MSQs
+            numerical_response: null, // No numerical response for MSQs
+          });
+          responsePromises.push(responsePromise);
+        }
+      } else {
+        // Handle MCQ or numerical: responseValue is a single value
+        const responsePromise = Response.create({
           attempt_id,
-          question_id,
-          option_id,
-          numerical_response: null, // No numerical response for multiple select options
+          question_id: parseInt(question_id, 10), // Ensure question_id is an integer
+          option_id: isNaN(responseValue) ? null : parseInt(responseValue, 10), // Set option_id for MCQs or null for numerical
+          numerical_response: isNaN(responseValue) ? parseFloat(responseValue) : null, // Set numerical response or null for MCQs
         });
-        responses.push(response);
+        responsePromises.push(responsePromise);
       }
-
-      res.status(200).json({
-        success: true,
-        message: 'Responses submitted successfully',
-        responses,
-      });
-    } else {
-      // Create a single response for non-MSQ questions
-      const response = await Response.create({
-        attempt_id,
-        question_id,
-        option_id: option_ids, // option_ids is a single option_id in this case
-        numerical_response,
-      });
-
-      res.status(200).json({
-        success: true,
-        message: 'Response submitted successfully',
-        response,
-      });
     }
+
+    // Wait for all responses to be created
+    const createdResponses = await Promise.all(responsePromises);
+
+    res.status(200).json({
+      success: true,
+      message: 'Responses submitted successfully',
+      responses: createdResponses,
+    });
   } catch (error) {
-    console.error('Error submitting response:', error);
+    console.error('Error submitting responses:', error);
     res.status(500).json({
       success: false,
-      message: 'An error occurred while submitting the response',
+      message: 'An error occurred while submitting the responses',
     });
   }
 };
 
 
 exports.completeTest = async (req, res) => {
+  console.log('Request body for completing test:', req.body);
   const { attempt_id } = req.body;
 
   try {
@@ -341,11 +357,17 @@ exports.completeTest = async (req, res) => {
         }
       }
     }
-
-    // Create a result record
+    console.log("scrore calculated ==",score)
     const result = await Result.create({
       attempt_id,
       score,
+    }).catch(error => {
+      console.error('Error creating result:', error);
+      res.status(500).json({
+        success: false,
+        message: 'An error occurred while creating the result',
+        error,
+      });
     });
 
     res.status(200).json({

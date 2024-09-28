@@ -6,8 +6,8 @@ const Test = require('./Test');
 
 const TestAttempt = sequelize.define('TestAttempt', {
   id: { 
-    type: DataTypes.INTEGER, 
-    autoIncrement: true, 
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
     primaryKey: true },
   user_id: {
     type: DataTypes.STRING,

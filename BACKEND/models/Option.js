@@ -12,7 +12,7 @@ const Option = sequelize.define('Option', {
   createdAt: { type: DataTypes.DATE, field: 'created_at', defaultValue: DataTypes.NOW },
 }, {
   timestamps: true,
-  updatedAt: false,
+  updatedAt: false, 
 });
 
 console.log('Option model defined:', Option === sequelize.models.Option);

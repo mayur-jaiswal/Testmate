@@ -8,11 +8,12 @@ const attemptRoutes = require('./routes/attemptRoutes');
 const { Question, Option } = require('./models');
 
 
-require('dotenv').config({ path: './.env' })
+require('dotenv').config({ path: './.env' })  
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 const fileUpload = require("express-fileupload");
 app.use(fileUpload({
@@ -24,12 +25,17 @@ app.use(fileUpload({
 const cloudinary = require("./config/cloudinary");
 cloudinary.cloudinaryConnect();
 
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:3000',  // Replace with your frontend origin
+  credentials: true  // Allow credentials (cookies) to be sent
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
-app.use('/api/users', userRoutes);
-app.use('/api/users', testRoutes);
-app.use('/api/users', attemptRoutes);
+app.use('/api', userRoutes);
+app.use('/api', testRoutes);
+app.use('/api', attemptRoutes);
 
 
 const PORT = process.env.PORT || 8000;

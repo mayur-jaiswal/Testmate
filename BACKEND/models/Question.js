@@ -29,6 +29,14 @@ const Question = sequelize.define('Question', {
     allowNull: false,
     defaultValue: 1,
   },
+  solution_link: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  reference_link: {
+    type: DataTypes.STRING, // URL for the reference link
+    allowNull: true,
+  },
   createdAt: { type: DataTypes.DATE, field: 'created_at', defaultValue: DataTypes.NOW },
 }, {
   timestamps: true,

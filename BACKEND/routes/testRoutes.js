@@ -4,7 +4,10 @@ const router = express.Router();
 const testController = require('../controllers/testController');
 const questionController = require('../controllers/questionController');
 const authMiddleware = require('../middleware/authMiddleware');
+const { updateQuestion } = require('../controllers/questionController');
 
+// Route to update an existing question (add solution link and reference link)
+router.put('/UpdateQuestion', updateQuestion);
 
 // Create a new test
 router.post('/createTest', testController.createTest);
@@ -13,13 +16,15 @@ router.post('/createTest', testController.createTest);
 router.get('/getAllTests', testController.getAllTests);
 
 // Get a single test by ID
-router.get('getTestById/:id', testController.getTestById);
+router.get('/getTestById/:id', testController.getTestById);  
+// Get a test on various parameter 
+router.get('/getTests',testController.getTests);
 
 // Update a test
-router.put('updateTestById/:id', testController.updateTest);
+router.put('/updateTestById/:id', testController.updateTest);   ``
 
 // Delete a test
-router.delete('deleteTestById/:id', testController.deleteTest);
+router.delete('/deleteTestById/:id', testController.deleteTest);
 
 
 
@@ -37,11 +42,18 @@ router.get('/attempts/:id', testController.getTestAttemptById);
 router.get('/attempts/:attempt_id/results', testController.getTestAttemptResults);
 
 // Get tests by filters
-router.get('/tests-type', authMiddleware.authenticateToken, authMiddleware.extractBranchFromCookies, testController.getTestTypes);
+router.get('/:type', testController.getTestTypes);
 
 
 router.post('/createQuestion', questionController.addQuestion);
 
+
+// Route to get question analysis
+router.get('/test-analysis/:attemptId', questionController.getTestAnalysis);
+// Route to add a comment
+router.post('/questions/:questionId/comments', questionController.addComment);
+// Route to like a comment
+router.post('/comments/like', questionController.likeComment);
 
 module.exports = router;
 

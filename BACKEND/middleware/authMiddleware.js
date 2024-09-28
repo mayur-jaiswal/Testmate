@@ -2,7 +2,12 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 exports.authenticateToken = (req, res, next) => {
-  const token = req.cookies.token;
+  // Get the Authorization header from the request
+  const authHeader = req.headers['authorization']; 
+
+  // The token is usually in the format "Bearer <token>", so we split it
+  const token = authHeader && authHeader.split(' ')[1];
+  console.log("authenticateToken token is ",JSON.stringify(token));
 
   if (!token) {
     return res.sendStatus(401);

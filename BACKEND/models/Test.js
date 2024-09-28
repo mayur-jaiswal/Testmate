@@ -45,4 +45,6 @@ const Test = sequelize.define('Test', {
   updatedAt: false
 });
 
+
+
 module.exports = Test;
