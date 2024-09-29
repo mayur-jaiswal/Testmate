@@ -1,0 +1,137 @@
+/* General Styling */
+.about-page {
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.6;
+  color: #444; /* Slightly lighter gray for better contrast */
+}
+
+/* Section Styling */
+.mission-section, .vision-section, .values-section {
+  padding: 50px 0;
+}
+
+.section-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.reverse {
+  flex-direction: row-reverse;
+}
+
+.text h2 {
+  font-size: 36px;
+  display: flex;
+  align-items: center;
+  color: #37474f; /* Charcoal gray for headings */
+}
+
+.text h2 .icon {
+  margin-right: 10px;
+}
+
+.text p {
+  font-size: 18px;
+  margin-top: 15px;
+  color: #616161; /* Medium gray for paragraph text */
+}
+
+/* Values Section */
+.values-section {
+  background-color: #f8f9fa;
+  text-align: center;
+}
+
+.values-cards {
+  display: flex;
+  justify-content: space-around;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  width: 30%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.card .icon {
+  font-size: 50px;
+  color: #f44336; /* Vibrant red icon */
+}
+
+.card h3 {
+  font-size: 24px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #37474f; /* Charcoal gray for headings */
+}
+
+.card p {
+  font-size: 16px;
+  color: #777;
+}
+
+/* Call to Action */
+.cta-section {
+  background-color: #009688; /* Teal background for CTA */
+  color: white;
+  text-align: center;
+  padding: 50px 0;
+}
+
+.cta-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cta-content h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.cta-content p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  color: #e0f7fa; /* Light cyan text */
+}
+
+.cta-button {
+  background-color: #ff9800; /* Vibrant orange button */
+  color: white;
+  font-size: 18px;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #e65100; /* Darker orange on hover */
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .section-content {
+    flex-direction: column;
+  }
+
+  .card {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}

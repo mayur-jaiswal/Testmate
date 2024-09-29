@@ -1,44 +1,130 @@
-// models/index.js
 const sequelize = require('../config/database');
+const User = require('./User');
+const Test = require('./Test');
+const TestAttempt = require('./TestAttempt');
 const Question = require('./Question');
+const Response = require('./response');
 const Option = require('./Option');
-const Response = require('./response')
-const TestAttempt = require('./TestAttempt')
-const Comment = require('./Comment')
+const Comment = require('./Comment');
+const CommentLike = require('./CommentLike');
 
 // Define associations
-Question.hasMany(Option, {
-  foreignKey: 'question_id',
-  as: 'options',  
-});
-console.log('Question hasMany Option association defined');
 
+// User can create multiple tests
+User.hasMany(Test, {
+  foreignKey: 'created_by',  // User creates the test
+  as: 'tests',
+});
+Test.belongsTo(User, {
+  foreignKey: 'created_by',
+  as: 'creator',
+});
+
+// User can attempt multiple tests
+User.hasMany(TestAttempt, {
+  foreignKey: 'user_id',  // User attempts the test
+  as: 'testAttempts',
+});
+TestAttempt.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user',
+});
+
+// Test can have multiple attempts by different users
+Test.hasMany(TestAttempt, {
+  foreignKey: 'test_id',  // Test being attempted
+  as: 'testAttempts',
+});
+TestAttempt.belongsTo(Test, {
+  foreignKey: 'test_id',
+  as: 'test',
+});
+
+// Test can have multiple questions
+Test.hasMany(Question, {
+  foreignKey: 'test_id',  // Test containing the questions
+  as: 'questions',
+});
+Question.belongsTo(Test, {
+  foreignKey: 'test_id',
+  as: 'test',
+});
+
+// Question can have multiple options
+Question.hasMany(Option, {
+  foreignKey: 'question_id',  // Options for the question
+  as: 'options',
+});
 Option.belongsTo(Question, {
-  foreignKey: 'question_id',  
+  foreignKey: 'question_id',
   as: 'question',
 });
-console.log('Option belongsTo Question association defined');
 
-
-Option.hasMany(Response, { foreignKey: 'optionId' });
-console.log('Question hasMany Option association defined');
-
-Response.belongsTo(Option, { foreignKey: 'optionId' });
-console.log('Response belongsTo Option association defined');
-
-TestAttempt.hasMany(Question, {
-  foreignKey: 'attemptId', // Foreign key in the Question table
-  as: 'questions', // Alias for eager loading
+// TestAttempt can have multiple responses (one per question)
+TestAttempt.hasMany(Response, {
+  foreignKey: 'attempt_id',  // Responses in the attempt
+  as: 'responses',
+});
+Response.belongsTo(TestAttempt, {
+  foreignKey: 'attempt_id',
+  as: 'testAttempt',
 });
 
-Question.hasMany(Comment, { foreignKey: 'question_id', // Foreign key in the Question table
-  as: 'comments', });
+// Response relates to a specific question and option
+Response.belongsTo(Question, {
+  foreignKey: 'question_id',  // Question that was answered
+  as: 'question',
+});
+Response.belongsTo(Option, {
+  foreignKey: 'option_id',  // Option selected in the response
+  as: 'option',
+});
 
-// Export all models
+// Comments on questions (not directly related to responses or attempts)
+Comment.belongsTo(Question, {
+  foreignKey: 'question_id',  // Comment on the question
+  as: 'question',
+});
+Question.hasMany(Comment, {
+  foreignKey: 'question_id',
+  as: 'comments',
+});
+
+// Comment belongs to a user (who made the comment)
+Comment.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user',
+});
+
+// User can like multiple comments
+User.hasMany(CommentLike, {
+  foreignKey: 'user_id',  // User who liked a comment
+  as: 'likedComments',
+});
+CommentLike.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user',
+});
+
+// Comment can have multiple likes
+Comment.hasMany(CommentLike, {
+  foreignKey: 'comment_id',  // Likes on the comment
+  as: 'likes',
+});
+CommentLike.belongsTo(Comment, {
+  foreignKey: 'comment_id',
+  as: 'comment',
+});
+
+// Export all models and the sequelize instance
 module.exports = {
   sequelize,
-  Question,
-  Option,
-  Response,
+  User,
+  Test,
   TestAttempt,
+  Question,
+  Response,
+  Option,
+  Comment,
+  CommentLike,
 };

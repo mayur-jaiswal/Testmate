@@ -14,33 +14,44 @@ exports.getTestAnalysis = async (req, res) => {
   const { attemptId } = req.params;
 
   try {
-    // Find the TestAttempt record
+    // Find the TestAttempt record by attemptId
     const attempt = await TestAttempt.findByPk(attemptId, {
       include: [
         {
-          model: Question,
-          as: 'questions',
+          model: Response,
+          as: 'responses',
           include: [
             {
-              model: Option,
-              as: 'options',
-            },
-            {
-              model: Comment,
-              as: 'comments',
+              model: Question,
+              as: 'question',
               include: [
                 {
-                  model: User, // Assuming User model exists for commenter details
-                  attributes: ['username'], // Include username if needed
+                  model: Option,
+                  as: 'options',
+                },
+                {
+                  model: Comment,
+                  as: 'comments',
+                  include: [
+                    {
+                      model: User,  // Get user who made the comment
+                      attributes: ['username'], // Only fetch the username
+                    },
+                  ],
                 },
               ],
+            },
+            {
+              model: Option,  // Selected option for the response
+              as: 'option',
             },
           ],
         },
         {
-          model: Test, // Assuming Test model exists to get test name
-          attributes: ['name'], // Get only the name attribute
-        },  
+          model: Test,  // Include the test details
+          as: 'test',
+          attributes: ['name'],  // Get only the test name
+        },
       ],
     });
 
@@ -48,25 +59,26 @@ exports.getTestAnalysis = async (req, res) => {
       return res.status(404).json({ success: false, message: 'No attempt found for this ID' });
     }
 
-    const formattedQuestions = attempt.Questions.map((question) => {
-      const userResponse = attempt.Responses.find((response) => response.question_id === question.id);
-      const selectedOption = userResponse ? question.Options.find((option) => option.id === userResponse.option_id) : null;
+    // Process questions and user responses
+    const formattedQuestions = attempt.responses.map((response) => {
+      const question = response.question;
+      const selectedOption = response.option;
 
       return {
-        testName: attempt.Test.name, // Get test name from included Test model
+        testName: attempt.test.name, // Test name from TestAttempt -> Test
         questionLink: question.question_link,
-        options: question.Options.map((option) => ({
+        options: question.options.map((option) => ({
           text: option.option_text,
           isCorrect: option.is_correct,
           isSelected: selectedOption ? selectedOption.id === option.id : false,
         })),
         solutionLink: question.solution_link,
         referenceLink: question.reference_link,
-        comments: question.Comments.map((comment) => ({
+        comments: question.comments.map((comment) => ({
           id: comment.id,
           content: comment.content,
           createdAt: comment.createdAt,
-          user: comment.User?.username, // Username from included User model
+          user: comment.User?.username,  // Username of the commenter
         })),
       };
     });
@@ -77,6 +89,8 @@ exports.getTestAnalysis = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
+
+
 
   // Add a comment to a question
   exports.addComment = async (req, res) => {
@@ -233,7 +247,7 @@ exports.getTestAnalysis = async (req, res) => {
 
 exports.updateQuestion = async (req, res) => {
   try {
-      const { question_id } = req.params;
+      const { question_id } = req.body;
       const { reference_link, marks } = req.body;
 
       // Find the question by ID

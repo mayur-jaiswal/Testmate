@@ -7,11 +7,12 @@ const TestAttempt = require('../models/TestAttempt');
 const Response = require('../models/response');
 const Result = require('../models/Result');
 const User = require('../models/User'); // Assuming you need user data
-  
+
 
 
 // Create a new test
 exports.createTest = async (req, res) => {
+  console.log("Got request to create test with request body",req.body)
   try {
     const { title, description, type, created_by, chapter, subject, duration } = req.body;
     const test = await Test.create({ title, description, type, created_by, chapter, subject, duration });
@@ -311,10 +312,19 @@ exports.completeTest = async (req, res) => {
 
     // Calculate the score (this example assumes each correct answer is worth the question's marks)
     const responses = await Response.findAll({
-      where: { attempt_id },
-      include: [{ model: Option }],
+      where: { attempt_id: attempt_id },
+      include: [
+        {
+          model: Option,
+          as: 'option', // Use the alias defined in the association
+        },
+        {
+          model: Question,
+          as: 'question', // Assuming you have an alias defined for Question as well
+        },
+      ],
     });
-
+    
     let score = 0;
     const questionResponseMap = {};
 
