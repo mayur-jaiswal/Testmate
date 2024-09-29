@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './CreateTest.css'
+import './CreateTest.css';
 
 const CreateTest = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
+  // State to hold the test details
   const [test, setTest] = useState({
     title: '',
     description: '',
@@ -11,7 +13,23 @@ const CreateTest = () => {
     chapter: '',
     subject: '',
     duration: '',
+    created_by: '', // This will be filled by user_id from localStorage
   });
+
+  // On component mount, get the user_id from localStorage
+  useEffect(() => {
+    const userId = localStorage.getItem('user_id');
+    if (userId) {
+      setTest((prevTest) => ({
+        ...prevTest,
+        created_by: userId, // Set the user_id in the test details
+      }));
+    } else {
+      // If no user_id is found, redirect to login or handle accordingly
+      alert('User is not logged in');
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,27 +42,31 @@ const CreateTest = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/createTest', {
+      const response = await fetch('http://localhost:8000/api/createTest', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(test),
+        body: JSON.stringify(test), // Include the created_by field in the request body
       });
       const data = await response.json();
+      console.log(data.test_id)
       if (response.ok) {
         alert('Test created successfully');
-        navigate(`/test-questionCreation`);
+        
+        // Navigate to the question creation page, passing the test_id in the URL
+        navigate(`/test-questionCreation/${data.test_id}`);
       } else {
-        alert('Error creating test');
+        alert('Error creating test: ' + data.message);
       }
     } catch (error) {
       console.error('Error creating test:', error);
+      alert('An error occurred while creating the test.');
     }
   };
 
   return (
-    <div>
+    <div className='createTest-form'>
       <h2>Create a New Test</h2>
       <form onSubmit={handleSubmit}>
         <label>Title:</label>

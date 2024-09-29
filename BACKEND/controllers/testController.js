@@ -7,20 +7,24 @@ const TestAttempt = require('../models/TestAttempt');
 const Response = require('../models/response');
 const Result = require('../models/Result');
 const User = require('../models/User'); // Assuming you need user data
-
+  
 
 
 // Create a new test
 exports.createTest = async (req, res) => {
-  console.log("Got request to create test with request body",req.body)
+  console.log("Got request to create test with request body", req.body);
   try {
     const { title, description, type, created_by, chapter, subject, duration } = req.body;
     const test = await Test.create({ title, description, type, created_by, chapter, subject, duration });
-    res.status(201).json(test);
+    
+    // Return the created test details, including test_id
+    res.status(201).json({ test_id: test.id, message: 'Test created successfully' });
+    console.log(test);
   } catch (error) {
     res.status(500).json({ message: 'Error creating test', error: error.message });
   }
 };
+
 
 // Get all tests
 exports.getAllTests = async (req, res) => {

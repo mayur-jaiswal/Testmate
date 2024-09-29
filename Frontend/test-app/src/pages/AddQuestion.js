@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import './AddQuestion.css';
 
-const AddQuestion = ({ testId }) => {
+const AddQuestion = () => {
+  const { test_id } = useParams(); // Get test_id from the URL params
+  const navigate = useNavigate(); // useNavigate for navigation
+
   const [question, setQuestion] = useState({
     question_type: 'MCQ',
     marks: 1,
@@ -38,7 +42,7 @@ const AddQuestion = ({ testId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('test_id', testId);
+    formData.append('test_id', test_id);
     formData.append('question_type', question.question_type);
     formData.append('marks', question.marks);
     formData.append('reference_link', question.reference_link);
@@ -51,13 +55,14 @@ const AddQuestion = ({ testId }) => {
     });
 
     try {
-      const response = await fetch(`/api/tests/${testId}/questions/add`, {
+      const response = await fetch(`http://localhost:8000/api/createQuestion`, {
         method: 'POST',
         body: formData,
       });
 
       if (response.ok) {
         alert('Question added successfully');
+        clearForm();  // Clear form after adding the question
       } else {
         alert('Error adding question');
       }
@@ -66,8 +71,24 @@ const AddQuestion = ({ testId }) => {
     }
   };
 
+  const clearForm = () => {
+    setQuestion({
+      question_type: 'MCQ',
+      marks: 1,
+      reference_link: '',
+      options: [],
+    });
+    setImage(null);
+    setSolution(null);
+  };
+
+  const handlePublishTest = () => {
+    // Navigate to the teacher dashboard when publishing the test
+    navigate('/teacher-dashboard');
+  };
+
   return (
-    <div>
+    <div className='createQestion-form'>
       <h2>Add a Question</h2>
       <form onSubmit={handleSubmit}>
         <label>Question Type:</label>
@@ -123,6 +144,9 @@ const AddQuestion = ({ testId }) => {
 
         <button type="submit">Add Question</button>
       </form>
+
+      {/* Publish Test button */}
+      <button className="publish-btn" onClick={handlePublishTest}>Publish Test</button>
     </div>
   );
 };

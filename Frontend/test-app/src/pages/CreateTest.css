@@ -1,51 +1,92 @@
-/* CreateTest.css */
-
-/* General Styles */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-}
-
-/* Form Container */
-form {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+/* Reset styles */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  /* Main container */
+  .create-test-container {
+    max-width: 600px;
+    margin: 40px auto;
     padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #f8f8f8;
+  }
+  
+  .createTest-form{
+    width:70vw;
+    margin:10vh auto 10vh auto;
+  }
+
+  /* Heading */
+  h2 {
+    text-align: center;
     margin-bottom: 30px;
-}
-
-/* Input Fields */
-input[type="text"],
-input[type="url"],
-input[type="number"],
-select,
-textarea {
-    width: calc(100% - 20px);
+    font-size: 24px;
+    color: #333;
+  }
+  
+  /* Form */
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* Label and input group */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  label {
+    font-weight: bold;
+    color: #555;
+  }
+  
+  input[type="text"],
+  input[type="number"],
+  textarea,
+  select {
     padding: 10px;
-    margin: 10px 0;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 5px;
+    width: 100%;
     font-size: 16px;
-}
-
-/* Textarea */
-textarea {
-    height: 80px;
-}
-
-/* Buttons */
-button {
-    background: #5cb85c;
+  }
+  
+  /* Button */
+  button {
+    background-color: #4CAF50;
     color: white;
+    padding: 10px 20px;
     border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    transition: background 0.3s;
-}
-
-button:hover {
-    background: #4cae4c;
-}
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #388E3C;
+  }
+  
+  /* Specific field styling */
+  .chapter-wise,
+  .subject-wise {
+    display: none;
+  }
+  
+  .type-selected {
+    display: block;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .create-test-container {
+      padding: 15px;
+    }
+  }

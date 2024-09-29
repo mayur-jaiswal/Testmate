@@ -146,104 +146,212 @@ exports.getTestAnalysis = async (req, res) => {
   }
   
 
-  exports.addQuestion = async (req, res) => {
-    try {
-        const { test_id, question_type, options, marks, reference_link } = req.body;
-        console.log(`test_id: ${test_id}, question_type: ${question_type}, options: ${JSON.stringify(options)}, marks: ${marks}, reference_link: ${reference_link}`);
+//   exports.addQuestion = async (req, res) => {
+//     console.log("request for adding question ",req.body);
+//     try {
+//         const { test_id, question_type, options, marks, reference_link } = req.body;
+//         console.log(`test_id: ${test_id}, question_type: ${question_type}, options: ${JSON.stringify(options)}, marks: ${marks}, reference_link: ${reference_link}`);
 
-        if (!req.files || Object.keys(req.files).length === 0) {
-            return res.status(400).send('No files were uploaded.');
-        }
+//         if (!req.files || Object.keys(req.files).length === 0) {
+//             return res.status(400).send('No files were uploaded.');
+//         }
 
-        const file = req.files.image;
-        console.log(file);
+//         const file = req.files.image;
+//         console.log(file);
 
-        // Check if the file is of a supported type
-        if (!supportedTypes.includes(file.mimetype)) {
-            return res.status(400).send('Unsupported file type. Only jpg, jpeg, and png are allowed.');
-        }
+//         // Check if the file is of a supported type
+//         if (!supportedTypes.includes(file.mimetype)) {
+//             return res.status(400).send('Unsupported file type. Only jpg, jpeg, and png are allowed.');
+//         }
 
-        // Check file size
-        if (file.size > 1000 * 1024) { 
-            return res.status(400).send('File size exceeds 1000kb limit.');
-        }
+//         // Check file size
+//         if (file.size > 1000 * 1024) { 
+//             return res.status(400).send('File size exceeds 1000kb limit.');
+//         }
 
-        // Upload question image to Cloudinary
-        const result = await uploadFileToCloudinary(file);
-        console.log(`Cloudinary upload result (Question Image): ${JSON.stringify(result)}`);
+//         // Upload question image to Cloudinary
+//         const result = await uploadFileToCloudinary(file);
+//         console.log(`Cloudinary upload result (Question Image): ${JSON.stringify(result)}`);
 
-        // Upload solution image if provided
-        let solutionLink = null;
-        if (req.files.solution) {
-            const solutionFile = req.files.solution;
+//         // Upload solution image if provided
+//         let solutionLink = null;
+//         if (req.files.solution) {
+//             const solutionFile = req.files.solution;
 
-            // Check if the solution file is of a supported type
-            if (!supportedTypes.includes(solutionFile.mimetype)) {
-                return res.status(400).send('Unsupported solution file type. Only jpg, jpeg, and png are allowed.');
-            }
+//             // Check if the solution file is of a supported type
+//             if (!supportedTypes.includes(solutionFile.mimetype)) {
+//                 return res.status(400).send('Unsupported solution file type. Only jpg, jpeg, and png are allowed.');
+//             }
 
-            // Check solution file size
-            if (solutionFile.size > 1000 * 1024) {
-                return res.status(400).send('Solution file size exceeds 1000kb limit.');
-            }
+//             // Check solution file size
+//             if (solutionFile.size > 1000 * 1024) {
+//                 return res.status(400).send('Solution file size exceeds 1000kb limit.');
+//             }
 
-            // Upload solution image to Cloudinary
-            const solutionResult = await uploadFileToCloudinary(solutionFile);
-            console.log(`Cloudinary upload result (Solution Image): ${JSON.stringify(solutionResult)}`);
-            solutionLink = solutionResult.secure_url;
-        }
+//             // Upload solution image to Cloudinary
+//             const solutionResult = await uploadFileToCloudinary(solutionFile);
+//             console.log(`Cloudinary upload result (Solution Image): ${JSON.stringify(solutionResult)}`);
+//             solutionLink = solutionResult.secure_url;
+//         }
 
-        // Create the question
-        const question = await Question.create({
-            test_id,
-            question_link: result.secure_url,
-            question_type,
-            marks: marks || 1,
-            solution_link: solutionLink, // Store the solution link
-            reference_link // Store the reference link if provided
-        });
-        console.log(`Question created: ${JSON.stringify(question)}`);
+//         // Create the question
+//         const question = await Question.create({
+//             test_id,
+//             question_link: result.secure_url,
+//             question_type,
+//             marks: marks || 1,
+//             solution_link: solutionLink, // Store the solution link
+//             reference_link // Store the reference link if provided
+//         });
+//         console.log(`Question created: ${JSON.stringify(question)}`);
 
-        // Handle options for MSQ and MCQ
-        if ((question_type === 'MSQ' || question_type === 'MCQ') && options) {
-            let parsedOptions;
-            try {
-                parsedOptions = JSON.parse(options);
-            } catch (error) {
-                return res.status(400).send('Options must be a valid JSON array.');
-            }
+//         // Handle options for MSQ and MCQ
+//         if ((question_type === 'MSQ' || question_type === 'MCQ') && options) {
+//             let parsedOptions;
+//             try {
+//                 parsedOptions = JSON.parse(options);
+//             } catch (error) {
+//                 return res.status(400).send('Options must be a valid JSON array.');
+//             }
 
-            if (Array.isArray(parsedOptions)) {
-                for (const option of parsedOptions) {
-                    console.log(`Creating option: ${JSON.stringify(option)}`);
-                    await Option.create({
-                        question_id: question.id,
-                        option_text: option.option_text,
-                        is_correct: option.is_correct
-                    });
-                }
-                console.log("Options created successfully");
-            } else {
-                return res.status(400).send('Options must be an array.');
-            }
-        } else if (question_type === 'MSQ' || question_type === 'MCQ') {
-            return res.status(400).send('Options are required for MSQ and MCQ question types.');
-        }
+//             if (Array.isArray(parsedOptions)) {
+//                 for (const option of parsedOptions) {
+//                     console.log(`Creating option: ${JSON.stringify(option)}`);
+//                     await Option.create({
+//                         question_id: question.id,
+//                         option_text: option.option_text,
+//                         is_correct: option.is_correct
+//                     });
+//                 }
+//                 console.log("Options created successfully");
+//             } else {
+//                 return res.status(400).send('Options must be an array.');
+//             }
+//         } else if (question_type === 'MSQ' || question_type === 'MCQ') {
+//             return res.status(400).send('Options are required for MSQ and MCQ question types.');
+//         }
 
-        // Send success response
-        res.status(201).json({
-            success: true,
-            data: question,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error',
-            error: error.message
-        });
-    }
+//         // Send success response
+//         res.status(201).json({
+//             success: true,
+//             data: question,
+//         });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({
+//             success: false,
+//             message: 'Server error',
+//             error: error.message
+//         });
+//     }
+// };
+
+
+
+
+exports.addQuestion = async (req, res) => {
+  console.log("request for adding question ", req.body);
+  try {
+      const { test_id, question_type, marks, reference_link } = req.body;
+      console.log(`test_id: ${test_id}, question_type: ${question_type}, marks: ${marks}, reference_link: ${reference_link}`);
+
+      if (!req.files || Object.keys(req.files).length === 0) {
+          return res.status(400).send('No files were uploaded.');
+      }
+
+      const file = req.files.image;
+      console.log(file);
+
+      // Check if the file is of a supported type
+      const supportedTypes = ['image/jpeg', 'image/png', 'image/jpg']; // Add this line if you don't have supported types already
+      if (!supportedTypes.includes(file.mimetype)) {
+          return res.status(400).send('Unsupported file type. Only jpg, jpeg, and png are allowed.');
+      }
+
+      // Check file size
+      if (file.size > 1000 * 1024) {
+          return res.status(400).send('File size exceeds 1000kb limit.');
+      }
+
+      // Upload question image to Cloudinary
+      const result = await uploadFileToCloudinary(file);
+      console.log(`Cloudinary upload result (Question Image): ${JSON.stringify(result)}`);
+
+      // Upload solution image if provided
+      let solutionLink = null;
+      if (req.files.solution) {
+          const solutionFile = req.files.solution;
+
+          // Check if the solution file is of a supported type
+          if (!supportedTypes.includes(solutionFile.mimetype)) {
+              return res.status(400).send('Unsupported solution file type. Only jpg, jpeg, and png are allowed.');
+          }
+
+          // Check solution file size
+          if (solutionFile.size > 1000 * 1024) {
+              return res.status(400).send('Solution file size exceeds 1000kb limit.');
+          }
+
+          // Upload solution image to Cloudinary
+          const solutionResult = await uploadFileToCloudinary(solutionFile);
+          console.log(`Cloudinary upload result (Solution Image): ${JSON.stringify(solutionResult)}`);
+          solutionLink = solutionResult.secure_url;
+      }
+
+      // Create the question
+      const question = await Question.create({
+          test_id,
+          question_link: result.secure_url,
+          question_type,
+          marks: marks || 1,
+          solution_link: solutionLink, // Store the solution link
+          reference_link // Store the reference link if provided
+      });
+      console.log(`Question created: ${JSON.stringify(question)}`);
+
+      // Reconstruct the options from the request body
+      let options = [];
+      for (let i = 0; i < Object.keys(req.body).length; i++) {
+          if (req.body[`options[${i}][option_text]`] && req.body[`options[${i}][is_correct]`] !== undefined) {
+              options.push({
+                  option_text: req.body[`options[${i}][option_text]`],
+                  is_correct: req.body[`options[${i}][is_correct]`] === 'true', // Ensure the correct type
+              });
+          } else {
+              break; // Exit loop if there are no more options
+          }
+      }
+
+      // Handle options for MSQ and MCQ
+      if ((question_type === 'MSQ' || question_type === 'MCQ') && options.length > 0) {
+          for (const option of options) {
+              console.log(`Creating option: ${JSON.stringify(option)}`);
+              await Option.create({
+                  question_id: question.id,
+                  option_text: option.option_text,
+                  is_correct: option.is_correct
+              });
+          }
+          console.log("Options created successfully");
+      } else if (question_type === 'MSQ' || question_type === 'MCQ') {
+          return res.status(400).send('Options are required for MSQ and MCQ question types.');
+      }
+
+      // Send success response
+      res.status(201).json({
+          success: true,
+          data: question,
+      });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({
+          success: false,
+          message: 'Server error',
+          error: error.message
+      });
+  }
 };
+
 
 exports.updateQuestion = async (req, res) => {
   try {

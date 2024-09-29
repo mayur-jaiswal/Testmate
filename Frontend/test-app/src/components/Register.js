@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import './Register.css';
 
 function Register() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -16,6 +18,7 @@ function Register() {
       const response = await axios.post('http://localhost:8000/api/createUser', { email, username, password, name, role, branch });
       console.log(response.data);
       alert('User Created Successfully');
+      navigate(`./login`)
     } catch (error) {
       console.error('Registration error:', error);
     }

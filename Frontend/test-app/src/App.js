@@ -34,7 +34,7 @@ function App() {
           <Route path="/test-result/:attemptId" element={<TestResultPage />} />
           <Route path="/test-analysis/:attemptId" element={<TestAnalysisPage />} />
           <Route path="/create-test" element={<CreateTest />} />
-          <Route path="/test-questionCreation" element={<AddQuestion />} />
+          <Route path="/test-questionCreation/:test_id" element={<AddQuestion />} />
         </Routes>
       </Layout>
     </Router>

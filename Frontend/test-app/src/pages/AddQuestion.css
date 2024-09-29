@@ -1,62 +1,163 @@
 /* AddQuestion.css */
 
-/* General Styles */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f7fc;
+  margin: 0;
+  padding: 0;
+  color: #333;
 }
 
-/* Form Container */
-form {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 30px;
+.createQestion-form{
+    width:70vw;
+    margin:10vh auto 10vh auto;
 }
 
-/* Input Fields */
+h2 {
+  text-align: center;
+  color: #2c3e50;
+  font-weight: 600;
+  margin-top: 20px;
+  font-size: 28px;
+  letter-spacing: 1px;
+}
+
+.form-container {
+  max-width: 750px;
+  margin: 40px auto;
+  background-color: #ffffff;
+  padding: 50px;
+  box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+label {
+  font-weight: 500;
+  color: #4a4a4a;
+  display: block;
+  margin-bottom: 10px;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
 input[type="text"],
 input[type="url"],
+input[type="file"],
 input[type="number"],
 select {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
+  width: 70%; /* Changed to 70% */
+  padding: 12px;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  border: 1px solid #d9dee9;
+  font-size: 15px;
+  box-shadow: inset 0px 3px 6px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.3s ease;
+  margin-left: auto;  /* Centering the elements */
+  margin-right: auto; /* Centering the elements */
 }
 
-/* Buttons */
+input:focus,
+select:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
 button {
-    background: #5cb85c;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background 0.3s;
+  width: 70%; /* Changed to 70% */
+  background-color: #27ae60;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-left: auto;  /* Centering the button */
+  margin-right: auto; /* Centering the button */
 }
 
 button:hover {
-    background: #4cae4c;
+  background-color: #229954;
+  transform: translateY(-3px);
 }
 
-/* Option Fields */
-.option-field {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
+button:active {
+  background-color: #1e8449;
+  transform: translateY(0);
 }
 
-.option-field input[type="text"] {
-    flex: 1;
-    margin-right: 10px;
+.options-container {
+  margin-top: 20px;
 }
 
-/* Checkbox */
-label input[type="checkbox"] {
-    margin-left: 5px;
+.option-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
 }
+
+.option-item input[type="text"] {
+  flex: 1;
+  margin-right: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #d9dee9;
+  font-size: 14px;
+}
+
+.option-item label {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .form-container {
+    margin: 20px;
+    padding: 30px;
+  }
+
+  .option-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .option-item input[type="text"] {
+    margin-bottom: 10px;
+    margin-right: 0;
+    width: 100%;
+  }
+}
+
+/* Add the following CSS for the publish button */
+.publish-btn {
+    width: 70%;
+    background-color: #e74c3c;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin: 20px auto 0;
+    display: block;
+  }
+  
+  .publish-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-3px);
+  }
+  
+  .publish-btn:active {
+    background-color: #a93226;
+    transform: translateY(0);
+  }
+  
