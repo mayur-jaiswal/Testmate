@@ -1,70 +1,183 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import './TestAnalysisPage.css';
 
 const TestAnalysis = () => {
   const { attemptId } = useParams();
-  const [questions, setQuestions] = useState([]); 
-
+  const navigate = useNavigate();
+  const [questions, setQuestions] = useState([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+  const [userId, setUserId] = useState(localStorage.getItem('user_id')); // Fetch user ID from local storage
+  console.log(localStorage.getItem('user_id'));
+  // Fetch test analysis data
   useEffect(() => {
-    // Fetch test analysis data from the backend
     const fetchTestAnalysis = async () => {
       const response = await fetch(`http://localhost:8000/api/test-analysis/${attemptId}`);
       const data = await response.json();
+      console.log(data);
       if (data.success) {
         setQuestions(data.questions);
+        if (data.questions.length > 0) {
+          fetchComments(data.questions[0].questionId); // Fetch comments for the first question
+        }
       }
     };
-
     fetchTestAnalysis();
   }, [attemptId]);
 
-  const handleLikeComment = async (commentId) => {
-    await fetch('/api/like-comment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ comment_id: commentId }),
-    });
 
-    // Refresh the data after liking
-    const response = await fetch(`/api/test-analysis/${attemptId}`);
+  // Fetch comments for a specific question
+  const fetchComments = async (questionId) => {
+    const response = await fetch(`http://localhost:8000/api/questions/${questionId}/comments`);
     const data = await response.json();
     if (data.success) {
-      setQuestions(data.questions);
+      setComments(data.comments);
     }
   };
 
-  return (
-    <div>
-      {questions.map((question, index) => (
-        <div key={index}>
-          <img src={question.question_link} alt={`Question ${index + 1}`} />
-          <div>
-            <strong>Your Answer:</strong>
-            <span style={{ color: question.isCorrect ? 'green' : 'red' }}>
-              {question.userAnswer}
-            </span>
-          </div>
-          {!question.isCorrect && (
-            <div>
-              <strong>Correct Answer:</strong>
-              <span style={{ color: 'green' }}>{question.correctAnswer}</span>
-            </div>
-          )}
-          <img src={question.solution_link} alt="Solution" />
+  // Handle posting a new comment
+  const handleAddComment = async () => {
+    if (newComment.trim() === '') return;
 
-          {/* Comments Section */}
-          <div>
-            <h4>Comments</h4>
-            {question.comments.map((comment, idx) => (
-              <div key={idx}>
-                <p>{comment.content}</p>
-                <span>Likes: {comment.likes}</span>
-                <button onClick={() => handleLikeComment(comment.id)}>Like</button>
+    console.log(questions[currentQuestionIndex].id);
+
+    const response = await fetch(`http://localhost:8000/api/questions/${questions[currentQuestionIndex].questionId}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: newComment,
+        question_id: questions[currentQuestionIndex].questionId,
+        userId,
+      }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      setComments([...comments, data.comment]); // Append new comment
+      setNewComment(""); // Clear input field
+    } else {
+      console.error('Error adding comment:', data.message); // Log any errors from the API
+    }
+  };
+
+  // Handle liking a comment
+  const handleLikeComment = async (commentId) => {
+    const response = await fetch('http://localhost:8000/api/comments/like', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ commentId, userId }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      // Refresh comments after liking
+      fetchComments(questions[currentQuestionIndex].id);
+    }
+  };
+
+  // Handle next and previous question navigation
+  const handleNextQuestion = () => {
+    const nextIndex = Math.min(currentQuestionIndex + 1, questions.length - 1);
+    setCurrentQuestionIndex(nextIndex);
+    fetchComments(questions[nextIndex].id);
+  };
+
+  const handlePreviousQuestion = () => {
+    const prevIndex = Math.max(currentQuestionIndex - 1, 0);
+    setCurrentQuestionIndex(prevIndex);
+    fetchComments(questions[prevIndex].id);
+  };
+
+  const handleEndAnalysis = () => {
+    navigate('/student-dashboard');
+  };
+
+  return (
+    <div className="test-analysis">
+      <div className="question-container">
+        {questions.length > 0 && (
+          <div className="question-card">
+            <h2>{questions[currentQuestionIndex].testName}</h2>
+            <img
+              src={questions[currentQuestionIndex].questionLink}
+              alt={`Question ${currentQuestionIndex + 1}`}
+              className="question-image"
+            />
+            <div className="options-container">
+              {questions[currentQuestionIndex].options.map((option, index) => (
+                <div
+                  key={index}
+                  className={`option ${option.isCorrect ? 'correct' : option.isSelected ? 'selected' : ''}`}
+                >
+                  {option.text}
+                </div>
+              ))}
+            </div>
+            <img
+              src={questions[currentQuestionIndex].solutionLink}
+              alt="Solution"
+              className="solution-image"
+            />
+            <a href={questions[currentQuestionIndex].referenceLink} target="_blank" rel="noopener noreferrer">
+              Reference Link
+            </a>
+
+            {/* Comments Section */}
+            <div className="comments-section">
+              <h3>Comments</h3>
+              <div className="comments-list">
+                {comments.length > 0 ? (
+                  comments.map((comment, index) => (
+                    <div key={index} className="comment">
+                      <p>
+                        <strong>{comment.username}:</strong> {comment.content}
+                      </p>
+                      <div className="comment-actions">
+                        <span>{new Date(comment.createdAt).toLocaleString()}</span>
+                        <span>Likes: {comment.likes.length}</span>
+                        <button onClick={() => handleLikeComment(comment.id)}>Like</button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p>No comments yet.</p>
+                )}
               </div>
-            ))}
+              <div className="add-comment">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add a comment..."
+                ></textarea>
+                <button onClick={handleAddComment}>Post Comment</button>
+              </div>
+            </div>
+
+            <div className="navigation-buttons">
+              <button onClick={handlePreviousQuestion} className="navigation-button">Previous</button>
+              <button onClick={handleNextQuestion} className="navigation-button">Next</button>
+            </div>
           </div>
-        </div>
-      ))}
+        )}
+      </div>
+
+      <div className="sidebar">
+        {questions.map((question, index) => (
+          <div
+            key={index}
+            className={`sidebar-item ${currentQuestionIndex === index ? 'active' : ''}`}
+            onClick={() => {
+              setCurrentQuestionIndex(index);
+              fetchComments(question.id);
+            }}
+          >
+            {index + 1}
+          </div>
+        ))}
+        <button onClick={handleEndAnalysis} className="done-button">Done</button>
+      </div>
     </div>
   );
 };

@@ -6,15 +6,18 @@ const CommentLike  = require('../models/CommentLike');
 const TestAttempt  = require('../models/TestAttempt');  
 const User  = require('../models/User');  
 const Test  = require('../models/Test');  
+const Response = require('../models/Response')
 require('dotenv').config();
 const supportedTypes = ["image/jpeg", "image/jpg", "image/png"];
 
 
 exports.getTestAnalysis = async (req, res) => {
   const { attemptId } = req.params;
+  console.log("getTestAnalysis handler is triggered  ",req.body)
 
   try {
-    // Find the TestAttempt record by attemptId
+    
+    console.log("starting controller of getTestAnalysis");
     const attempt = await TestAttempt.findByPk(attemptId, {
       include: [
         {
@@ -34,27 +37,28 @@ exports.getTestAnalysis = async (req, res) => {
                   as: 'comments',
                   include: [
                     {
-                      model: User,  // Get user who made the comment
-                      attributes: ['username'], // Only fetch the username
+                      model: User, 
+                      as:'user', 
+                      attributes: ['username'], 
                     },
                   ],
                 },
               ],
             },
             {
-              model: Option,  // Selected option for the response
+              model: Option,  
               as: 'option',
             },
           ],
         },
         {
-          model: Test,  // Include the test details
+          model: Test,    
           as: 'test',
-          attributes: ['name'],  // Get only the test name
+          attributes: ['title'],
         },
       ],
     });
-
+    console.log("Got result from database: ",attempt);
     if (!attempt) {
       return res.status(404).json({ success: false, message: 'No attempt found for this ID' });
     }
@@ -63,11 +67,12 @@ exports.getTestAnalysis = async (req, res) => {
     const formattedQuestions = attempt.responses.map((response) => {
       const question = response.question;
       const selectedOption = response.option;
-
+      console.log("return started");
       return {
-        testName: attempt.test.name, // Test name from TestAttempt -> Test
+        testName: attempt.test.title, 
+        questionId: question.id,
         questionLink: question.question_link,
-        options: question.options.map((option) => ({
+        options: question.options.map((option) => ({  
           text: option.option_text,
           isCorrect: option.is_correct,
           isSelected: selectedOption ? selectedOption.id === option.id : false,
@@ -78,11 +83,11 @@ exports.getTestAnalysis = async (req, res) => {
           id: comment.id,
           content: comment.content,
           createdAt: comment.createdAt,
-          user: comment.User?.username,  // Username of the commenter
+          user: comment.User?.username,  
         })),
       };
     });
-
+    console.log("formattedQuestions object ----------------------------------------",formattedQuestions);
     return res.status(200).json({ success: true, questions: formattedQuestions });
   } catch (error) {
     console.error('Error fetching test analysis:', error);
@@ -94,13 +99,14 @@ exports.getTestAnalysis = async (req, res) => {
 
   // Add a comment to a question
   exports.addComment = async (req, res) => {
-    const { questionId, userId, content } = req.body;
+    const { question_id, userId, content } = req.body;
+    console.log("request body for add comment: ",req.body)
   
     try {
       const newComment = await Comment.create({
-        question_id: questionId,
+        question_id: question_id,
         user_id: userId,
-        content,
+        content:content,
       });
   
       return res.status(201).json({ success: true, comment: newComment });
@@ -109,6 +115,40 @@ exports.getTestAnalysis = async (req, res) => {
       return res.status(500).json({ success: false, message: 'Internal server error' });
     }
   };
+
+
+ // In your questionController.js
+
+// In your questionController.js
+
+// Get comments for a specific question
+exports.getCommentsForQuestion = async (req, res) => {
+  const { questionId } = req.params;
+
+  try {
+      const comments = await Comment.findAll({
+          where: { question_id: questionId },
+          include: [
+              {
+                  model: User, // Assuming you have a User model to get the username
+                  as: 'user', // Use the alias defined in your associations 
+                  attributes: ['username'], // Adjust this based on your user model
+              },
+          ],
+          order: [['createdAt', 'DESC']], // Optional: order by creation date
+      });
+
+      if (comments.length === 0) {
+          return res.status(200).json({ success: true, comments: [] }); // No comments found
+      }
+
+      return res.status(200).json({ success: true, comments });
+  } catch (error) {
+      console.error('Error fetching comments:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
   
   // Like a comment
   exports.likeComment = async (req, res) => {
@@ -262,37 +302,37 @@ exports.addQuestion = async (req, res) => {
       const file = req.files.image;
       console.log(file);
 
-      // Check if the file is of a supported type
-      const supportedTypes = ['image/jpeg', 'image/png', 'image/jpg']; // Add this line if you don't have supported types already
+      
+      const supportedTypes = ['image/jpeg', 'image/png', 'image/jpg']; 
       if (!supportedTypes.includes(file.mimetype)) {
           return res.status(400).send('Unsupported file type. Only jpg, jpeg, and png are allowed.');
       }
 
-      // Check file size
+      
       if (file.size > 1000 * 1024) {
           return res.status(400).send('File size exceeds 1000kb limit.');
       }
 
-      // Upload question image to Cloudinary
+     
       const result = await uploadFileToCloudinary(file);
       console.log(`Cloudinary upload result (Question Image): ${JSON.stringify(result)}`);
 
-      // Upload solution image if provided
+      
       let solutionLink = null;
       if (req.files.solution) {
           const solutionFile = req.files.solution;
 
-          // Check if the solution file is of a supported type
+          
           if (!supportedTypes.includes(solutionFile.mimetype)) {
               return res.status(400).send('Unsupported solution file type. Only jpg, jpeg, and png are allowed.');
           }
 
-          // Check solution file size
+          
           if (solutionFile.size > 1000 * 1024) {
               return res.status(400).send('Solution file size exceeds 1000kb limit.');
           }
 
-          // Upload solution image to Cloudinary
+          
           const solutionResult = await uploadFileToCloudinary(solutionFile);
           console.log(`Cloudinary upload result (Solution Image): ${JSON.stringify(solutionResult)}`);
           solutionLink = solutionResult.secure_url;
@@ -304,8 +344,8 @@ exports.addQuestion = async (req, res) => {
           question_link: result.secure_url,
           question_type,
           marks: marks || 1,
-          solution_link: solutionLink, // Store the solution link
-          reference_link // Store the reference link if provided
+          solution_link: solutionLink, 
+          reference_link 
       });
       console.log(`Question created: ${JSON.stringify(question)}`);
 
@@ -368,7 +408,7 @@ exports.updateQuestion = async (req, res) => {
       }
 
       // Check if a solution image is provided in the request
-      let solutionLink = question.solution_link; // Keep existing solution_link if no new file is uploaded
+      let solutionLink = question.solution_link; 
       if (req.files && req.files.solution) {
           const solutionFile = req.files.solution;
 
@@ -390,8 +430,8 @@ exports.updateQuestion = async (req, res) => {
 
       // Update the question with new solution link and reference link
       question.solution_link = solutionLink;
-      question.reference_link = reference_link || question.reference_link; // Update if provided, else keep the existing link
-      question.marks = marks || question.marks; // Update marks if provided
+      question.reference_link = reference_link || question.reference_link; 
+      question.marks = marks || question.marks; 
 
       // Save the updated question
       await question.save();

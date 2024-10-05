@@ -4,7 +4,7 @@ const Test = require('../models/Test');
 const Question = require('../models/Question');
 const Option = require('../models/Option');
 const TestAttempt = require('../models/TestAttempt');
-const Response = require('../models/response');
+const Response = require('../models/Response');
 const Result = require('../models/Result');
 const User = require('../models/User'); // Assuming you need user data
   
@@ -17,7 +17,7 @@ exports.createTest = async (req, res) => {
     const { title, description, type, created_by, chapter, subject, duration } = req.body;
     const test = await Test.create({ title, description, type, created_by, chapter, subject, duration });
     
-    // Return the created test details, including test_id
+    
     res.status(201).json({ test_id: test.id, message: 'Test created successfully' });
     console.log(test);
   } catch (error) {
@@ -41,7 +41,7 @@ exports.getTestTypes = async (req, res) => {
   try {
     const testTypes = await Test.findAll({
       attributes: ['type'],
-      group: ['type'], // Ensures that you get distinct test types if needed
+      group: ['type'], 
     });
     res.status(200).json(testTypes);
   } catch (error) {
@@ -199,7 +199,7 @@ exports.startTest = async (req, res) => {
         message: 'Test not found',
       });
     }
-    //console.log(test);
+    
 
     // Create a new test attempt
     const testAttempt = await TestAttempt.create({
@@ -311,20 +311,20 @@ exports.completeTest = async (req, res) => {
 
     // Update the test attempt with the completion time
     testAttempt.completed_at = new Date();
-    testAttempt.duration = Math.ceil((testAttempt.completed_at - testAttempt.started_at) / (1000 * 60)); // Duration in minutes
+    testAttempt.duration = Math.ceil((testAttempt.completed_at - testAttempt.started_at) / (1000 * 60)); 
     await testAttempt.save();
 
-    // Calculate the score (this example assumes each correct answer is worth the question's marks)
+    
     const responses = await Response.findAll({
       where: { attempt_id: attempt_id },
       include: [
         {
           model: Option,
-          as: 'option', // Use the alias defined in the association
+          as: 'option', 
         },
         {
           model: Question,
-          as: 'question', // Assuming you have an alias defined for Question as well
+          as: 'question', 
         },
       ],
     });
@@ -363,10 +363,10 @@ exports.completeTest = async (req, res) => {
           if (response.option_id) {
             const option = await Option.findByPk(response.option_id);
             if (option && option.is_correct) {
-              score += question.marks; // Use question.marks for scoring
+              score += question.marks; 
             }
           } else if (response.numerical_response !== null) {
-            // Handle numerical response scoring if applicable
+            
           }
         }
       }

@@ -52,6 +52,11 @@ router.post('/createQuestion', questionController.addQuestion);
 router.get('/test-analysis/:attemptId', questionController.getTestAnalysis);
 // Route to add a comment
 router.post('/questions/:questionId/comments', questionController.addComment);
+
+// Route to get comments for a specific question
+router.get('/questions/:questionId/comments', questionController.getCommentsForQuestion);
+
+
 // Route to like a comment
 router.post('/comments/like', questionController.likeComment);
 
