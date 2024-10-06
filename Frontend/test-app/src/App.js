@@ -2,9 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './components/Home';
 import About from './components/About';
-import Services from './components/Services';
+import Services from './components/Services'; 
 import Contact from './components/Contact';
-import Login from './components/Login';   
+import Login from './components/Login';
 import Register from './components/Register';
 import StudentDashboard from './pages/StudentDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
@@ -15,8 +15,21 @@ import TestAnalysisPage from './pages/TestAnalysisPage';
 import AddQuestion from './pages/AddQuestion';
 import CreateTest from './pages/CreateTest';
 import Layout from './components/Layout';
+import AdminDashboard from './pages/AdminDashboard'; // Import your AdminP
+import PrivateRoute from './components/PrivateRoute'; 
 
 function App() {
+  // Function to check if the user is logged in
+  const isLoggedIn = () => {
+    return localStorage.getItem('token') !== null;
+  };
+
+  // Function to get the user's role
+  const getUserRole = () => {
+    const user = JSON.parse(localStorage.getItem('user')); // Assuming you store user info as an object
+    return user ? user.role : null;
+  };
+
   return (
     <Router>
       <Layout>
@@ -27,8 +40,9 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/student-dashboard" element={<StudentDashboard />} />
-          <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
+          <Route path="/student-dashboard" element={<PrivateRoute><StudentDashboard /></PrivateRoute>} />
+          <Route path="/teacher-dashboard" element={<PrivateRoute><TeacherDashboard /></PrivateRoute>} />
+          <Route path="/admin-dashboard" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
           <Route path="/tests/:category" element={<TestListPage />} />
           <Route path="/test/:testId" element={<TestInterface />} />
           <Route path="/test-result/:attemptId" element={<TestResultPage />} />

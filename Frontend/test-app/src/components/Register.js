@@ -9,13 +9,19 @@ function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState('');
-  const [branch, setBranch] = useState('');
+  const [branch, setBranch] = useState('CSE'); // Default to 'CSE'
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/api/createUser', { email, username, password, name, role, branch });
+      const response = await axios.post('http://localhost:8000/api/createUser', {
+        email,
+        username,
+        password,
+        name,
+        role: 'student', // Default role set to 'student'
+        branch,
+      });
       console.log(response.data);
       alert('User Created Successfully');
       navigate(`/login`);
@@ -45,12 +51,18 @@ function Register() {
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
         <div>
-          <label>Role</label>
-          <input type="text" value={role} onChange={(e) => setRole(e.target.value)} required />
-        </div>
-        <div>
           <label>Branch</label>
-          <input type="text" value={branch} onChange={(e) => setBranch(e.target.value)} required />
+          <select value={branch} onChange={(e) => setBranch(e.target.value)} required>
+            <option value="CSE">CSE</option>
+            <option value="INFT">INFT</option>
+            <option value="EXTC">EXTC</option>
+            <option value="ECS">ECS</option>
+            <option value="AIDS">AIDS</option>
+            <option value="Mechanical">Mechanical</option>
+            <option value="Chemical">Chemical</option>
+            <option value="Automobile">Automobile</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
         <button type="submit">Register</button>
       </form>
