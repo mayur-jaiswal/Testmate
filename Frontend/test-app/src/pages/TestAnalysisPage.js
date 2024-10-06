@@ -30,11 +30,17 @@ const TestAnalysis = () => {
 
   // Fetch comments for a specific question
   const fetchComments = async (questionId) => {
-    const response = await fetch(`http://localhost:8000/api/questions/${questionId}/comments`);
+    const response = await fetch(`http://localhost:8000/api/questions/${questionId}/getcomments`, {
+      method: 'POST', // Assuming you want to use POST to send the userId
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }), // Pass the userId in the request body
+    });
+
     const data = await response.json();
     if (data.success) {
       setComments(data.comments);
     }
+    console.log(comments);
   };
 
   // Handle posting a new comment
@@ -43,7 +49,7 @@ const TestAnalysis = () => {
 
     console.log(questions[currentQuestionIndex].id);
 
-    const response = await fetch(`http://localhost:8000/api/questions/${questions[currentQuestionIndex].questionId}/comments`, {
+    const response = await fetch(`http://localhost:8000/api/questions/${questions[currentQuestionIndex].questionId}/addcomments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -55,7 +61,7 @@ const TestAnalysis = () => {
 
     const data = await response.json();
     if (data.success) {
-      setComments([...comments, data.comment]); // Append new comment
+      setComments([data.comment, ...comments]);
       setNewComment(""); // Clear input field
     } else {
       console.error('Error adding comment:', data.message); // Log any errors from the API
@@ -72,23 +78,32 @@ const TestAnalysis = () => {
 
     const data = await response.json();
     if (data.success) {
-      // Refresh comments after liking
-      fetchComments(questions[currentQuestionIndex].id);
+      // Update the comments state with the new like count and likedByUser flag
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment.id === commentId
+            ? { ...comment, likeCount: data.likeCount, likedByUser: true } // Ensure likeCount and likedByUser are updated
+            : comment
+        )
+      );
+      
+    } else {
+      console.error(data.message);
     }
   };
 
-  // Handle next and previous question navigation
   const handleNextQuestion = () => {
     const nextIndex = Math.min(currentQuestionIndex + 1, questions.length - 1);
     setCurrentQuestionIndex(nextIndex);
-    fetchComments(questions[nextIndex].id);
+    fetchComments(questions[nextIndex].questionId); // Use questionId instead of id
   };
-
+  
   const handlePreviousQuestion = () => {
     const prevIndex = Math.max(currentQuestionIndex - 1, 0);
     setCurrentQuestionIndex(prevIndex);
-    fetchComments(questions[prevIndex].id);
+    fetchComments(questions[prevIndex].questionId); // Use questionId instead of id
   };
+  
 
   const handleEndAnalysis = () => {
     navigate('/student-dashboard');
@@ -132,12 +147,18 @@ const TestAnalysis = () => {
                   comments.map((comment, index) => (
                     <div key={index} className="comment">
                       <p>
-                        <strong>{comment.username}:</strong> {comment.content}
+                        <strong>{comment.user_id}:</strong> {comment.content}
                       </p>
                       <div className="comment-actions">
-                        <span>{new Date(comment.createdAt).toLocaleString()}</span>
-                        <span>Likes: {comment.likes.length}</span>
-                        <button onClick={() => handleLikeComment(comment.id)}>Like</button>
+                        
+                        <span>{comment.likeCount}</span>  {/* Display likes count */}
+                        <button 
+                          className='like-button'
+                          disabled={comment.likedByUser === true} // Disable if liked
+                          onClick={() => handleLikeComment(comment.id)}
+                        >
+                          Like
+                        </button>
                       </div>
                     </div>
                   ))

@@ -17,25 +17,80 @@ const TestInterface = () => {
   useEffect(() => {
     // Fetch userId from localStorage when component mounts
     const storedUserId = localStorage.getItem('user_id');
-    setUserId(storedUserId);
 
-    // Fetch test questions and options from the backend
-    const fetchTestData = async () => {
+    setUserId(storedUserId);
+    console.log("localStorage user_id ",userId)
+
+    // Check payment status and fetch test data
+    const checkPaymentStatusAndFetchTestData = async () => {
       const response = await fetch('http://localhost:8000/api/start-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ test_id: testId, user_id: storedUserId }), // Send user ID and test ID
       });
       const data = await response.json();
+      console.log(data);
+      
       if (data.success) {
-        setQuestions(data.questions);
-        setAttemptId(data.testAttempt.id); // Store attempt ID from response
-        setTestName(data.testName); // Store test name
-        setTimer(data.testDuration * 60); // Set timer in seconds (duration in minutes * 60)
+        if (data.message === 'Test started successfully') {
+          // If payment is completed, fetch questions
+          setQuestions(data.questions);
+          console.log("--------------------question array",data.questions)
+          setAttemptId(data.testAttempt.id); // Store attempt ID from response
+          setTestName(data.testName); // Store test name
+          setTimer(data.testDuration * 60); // Set timer in seconds (duration in minutes * 60)
+        } else if (data.orderId) {
+          // If payment is pending, initiate Razorpay payment
+          initiateRazorpayPayment(data.orderId, data.amount, data.currency, data.user_id);
+        }
       }
     };
-    fetchTestData();
-  }, [testId]);
+    checkPaymentStatusAndFetchTestData();
+  }, [testId, userId]);
+
+  const initiateRazorpayPayment = (orderId, amount, currency, userId) => {
+    console.log("userId ----------------------",userId);
+    const options = {
+      key: 'rzp_test_dDRfvvt96dpvdw', // Replace with your Razorpay key
+      amount: amount,
+      currency: currency,
+      name: 'GATE Test Payment',  
+      description: 'Test payment for starting the test',
+      order_id: orderId,
+      handler: async (response) => {
+        try {
+          const verificationResponse = await fetch('http://localhost:8000/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: userId,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+          const result = await verificationResponse.json();
+          if (result.success) {
+            // Payment verified successfully. Trigger the useEffect logic to fetch the test data
+          console.log("Payment verified successfully.");
+          // You can use a state here to re-trigger useEffect if needed
+          setUserId(userId);  // This will re-trigger the useEffect with [userId] as dependency
+            
+          } else {
+            console.error('Payment verification failed:', result.message);
+          }
+        } catch (error) {
+          console.error('Error verifying payment:', error);
+        } 
+      },
+      theme: {
+        color: '#3399cc',
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
 
   // Countdown timer logic
   useEffect(() => {
@@ -77,19 +132,14 @@ const TestInterface = () => {
         }),
       });
   
-      // Check if the response is OK (status in the range 200-299)
       if (!response.ok) {
-        
         console.error('Failed to submit responses');
-        return; // Exit the function if the response is not OK
+        return;
       }
   
-      // Parse the JSON response only if the response is OK
       const data = await response.json();
-      console.log("Data after submitting responses to server:", data);
   
       if (data.success) {
-        // Navigate to the TestResultPage with the attemptId
         navigate(`/test-result/${attemptId}`);
       } else {
         console.error('Submission unsuccessful:', data.message);
@@ -107,7 +157,7 @@ const TestInterface = () => {
             <div className="test-info">
               <h1>{testName}</h1> {/* Display the test name */}
               <h3>Time Remaining: {formatTime(timer)}</h3> {/* Display countdown timer */}
-            </div>
+            </div>  
             <h2>Question {currentQuestionIndex + 1}</h2>
             <img src={questions[currentQuestionIndex].question_link} alt={`Question ${currentQuestionIndex + 1}`} className="question-image" />
             {questions[currentQuestionIndex].options.map(option => (

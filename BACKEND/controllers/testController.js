@@ -5,10 +5,18 @@ const Question = require('../models/Question');
 const Option = require('../models/Option');
 const TestAttempt = require('../models/TestAttempt');
 const Response = require('../models/Response');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 const Result = require('../models/Result');
 const User = require('../models/User'); // Assuming you need user data
-  
+require('dotenv').config();
 
+
+// Razorpay instance (use your keys here)
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 // Create a new test
 exports.createTest = async (req, res) => {
@@ -177,10 +185,28 @@ exports.getTests = async (req, res) => {
     res.status(200).json(tests);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching tests', error: error.message });
-  }
+  } 
 };
 
 
+exports.verifyPayment = async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, user_id, tet} = req.body;
+  console.log("verifyPayment------------------------details: ",req.body)
+  const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+  hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+  const generated_signature = hmac.digest('hex');
+
+  if (generated_signature === razorpay_signature) {
+    // Verification success: Update user's payment status in the database   
+    await User.update({ payment_status: 'completed' }, { where: { email: user_id} });     
+    // Then proceed with starting the test for the user
+    console.log("Payment verified")
+    res.json({ success: true, message: 'Payment verified',});
+  } else {
+    // Payment verification failed
+    res.status(400).json({ success: false, message: 'Payment verification failed' });   
+  }
+};
 
 
 
@@ -199,30 +225,53 @@ exports.startTest = async (req, res) => {
         message: 'Test not found',
       });
     }
-    
 
-    // Create a new test attempt
-    const testAttempt = await TestAttempt.create({
-      user_id,
-      test_id,
-      started_at: new Date(),
-    });
-    console.log("current test attempt id is ",testAttempt);
+    // Check payment status for the user
+    const user = await User.findByPk(user_id);
 
-    // Get all questions for the test
-    const questions = await Question.findAll({
-      where: { test_id },
-      include: [{ model: Option, as: 'options' }],
-    });
-    //console.log(questions);
-    res.status(200).json({ 
-      success: true,
-      message: 'Test started successfully',
-      testName:test.title,
-      testDuration:test.duration,
-      testAttempt,  
-      questions,
-    });
+    if (user.payment_status === 'completed') {
+      // User has completed payment, proceed with test attempt creation
+
+      // Create a new test attempt
+      const testAttempt = await TestAttempt.create({
+        user_id,
+        test_id,
+        started_at: new Date(),
+      });
+      console.log("current test attempt id is ", testAttempt);
+
+      // Get all questions for the test
+      const questions = await Question.findAll({
+        where: { test_id },
+        include: [{ model: Option, as: 'options' }],
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Test started successfully',
+        testName: test.title,
+        testDuration: test.duration,
+        testAttempt,
+        questions,
+      });
+    } else {
+      const shortReceipt = `${test_id}_${user_id.substring(0, 10)}`
+      // If payment is pending, create a Razorpay order
+      const order = await razorpay.orders.create({
+        amount: 100, // Amount in paise (50000 paise = ₹500)
+        currency: 'INR',
+        receipt: shortReceipt,  
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Payment required. Redirecting to payment gateway.',
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        user_id,
+      });
+    }
   } catch (error) {
     console.error('Error starting test:', error);
     res.status(500).json({
@@ -230,7 +279,7 @@ exports.startTest = async (req, res) => {
       message: 'An error occurred while starting the test',
     });
   }
-};  
+};
 
 exports.submitResponse = async (req, res) => {
   console.log('Request body for submitting test:', req.body);

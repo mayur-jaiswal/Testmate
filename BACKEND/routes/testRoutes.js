@@ -51,14 +51,18 @@ router.post('/createQuestion', questionController.addQuestion);
 // Route to get question analysis
 router.get('/test-analysis/:attemptId', questionController.getTestAnalysis);
 // Route to add a comment
-router.post('/questions/:questionId/comments', questionController.addComment);
+router.post('/questions/:questionId/addcomments', questionController.addComment);
 
 // Route to get comments for a specific question
-router.get('/questions/:questionId/comments', questionController.getCommentsForQuestion);
+router.post('/questions/:questionId/getcomments', questionController.getCommentsForQuestion);
 
 
 // Route to like a comment
-router.post('/comments/like', questionController.likeComment);
+router.post('/comments/like',questionController.likeComment);
+
+// Route to verify payment after user completes payment on Razorpay
+router.post('/verify-payment',testController.verifyPayment);
 
 module.exports = router;
 
+// authMiddleware.authenticateToken,authMiddleware.extractBranchFromCookies

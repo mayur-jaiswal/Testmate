@@ -7,6 +7,7 @@ const TestAttempt  = require('../models/TestAttempt');
 const User  = require('../models/User');  
 const Test  = require('../models/Test');  
 const Response = require('../models/Response')
+const sequelize = require('../config/database'); 
 require('dotenv').config();
 const supportedTypes = ["image/jpeg", "image/jpg", "image/png"];
 
@@ -124,36 +125,65 @@ exports.getTestAnalysis = async (req, res) => {
 // Get comments for a specific question
 exports.getCommentsForQuestion = async (req, res) => {
   const { questionId } = req.params;
-
+  const { userId } = req.body;  // Assuming the userId is passed as a query param
+  console.log("requested to get commet for specofic question", req.body)
   try {
+      // Fetch all comments for the question
       const comments = await Comment.findAll({
           where: { question_id: questionId },
           include: [
               {
-                  model: User, // Assuming you have a User model to get the username
-                  as: 'user', // Use the alias defined in your associations 
-                  attributes: ['username'], // Adjust this based on your user model
-              },
-          ],
-          order: [['createdAt', 'DESC']], // Optional: order by creation date
+                  model: User,
+                  as: 'user', // Alias defined in associations
+                  attributes: ['username'], // Fetch only the username from User model
+              },  
+          ],    
+          attributes: {
+              include: [
+                  // Subquery to count likes for each comment
+                  [   
+                    sequelize.literal(`(
+                      SELECT COUNT(*)
+                      FROM CommentLikes AS likes
+                      WHERE likes.comment_id = Comment.id
+                    )`),
+                    'likeCount'
+                  ]
+              ]
+          },
+          order: [['createdAt', 'DESC']],
       });
 
-      if (comments.length === 0) {
-          return res.status(200).json({ success: true, comments: [] }); // No comments found
-      }
-
-      return res.status(200).json({ success: true, comments });
+      // Check for each comment whether the user has liked it or not
+      const commentsWithLikeStatus = await Promise.all(
+        comments.map(async (comment) => {
+          const likedByUser = await CommentLike.findOne({
+            where: {
+              comment_id: comment.id,
+              user_id: userId,  // Check if the user has liked the comment
+            },
+          });
+          
+          return {
+            ...comment.toJSON(),
+            likedByUser: likedByUser ? true : false,  // Boolean flag based on the presence of a like
+          };
+        })
+      );
+      console.log("testing pass");
+      return res.status(200).json({ success: true, comments: commentsWithLikeStatus });
   } catch (error) {
       console.error('Error fetching comments:', error);
       return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
+
   
   // Like a comment
   exports.likeComment = async (req, res) => {
     const { commentId, userId } = req.body;
-  
+    console.log("while liking comment request is ",req.body)
     try {
       const existingLike = await CommentLike.findOne({
         where: {
