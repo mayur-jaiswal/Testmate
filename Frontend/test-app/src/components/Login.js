@@ -2,36 +2,39 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
+import { login   
+ } from '../api/authApi'; // Adjust the path if necessary
+
+const API_URL = 'http://localhost:8000/api';
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
-  const handleLogin = async (e) => {    
-    e.preventDefault();
-    try {
-      const response = await axios.post('http://localhost:8000/api/loginUser', { email, password });
-      console.log(response.data.user.email);
+    const handleLogin = async (e) => {
+        e.preventDefault();   
 
-      if (response.data.user.role ==='teacher') {
-        // Store the token in localStorage
-        console.log(response.data.user.email);
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user_id', response.data.user.email);
-        console.log(localStorage.getItem('user_id'));
-        // Redirect to the home page or dashboard
-        navigate('/teacher-dashboard');   
-      } else {
-        navigate('/student-dashboard');
-        localStorage.setItem('user_id', response.data.user.email);
-        console.log(localStorage.getItem('user_id'));
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      alert('An error occurred. Please try again.');
-    }
-  };
+        try {
+            const response = await axios.post(`${API_URL}/loginUser`,   
+ { email, password });
+
+            // Store the token in localStorage
+            localStorage.setItem('token', response.data.token);
+
+            // Handle user role and navigation
+            if (response.data.user.role === 'admin') {
+                navigate('/admin-dashboard'); 
+            } else if (response.data.user.role === 'teacher') {
+                navigate('/teacher-dashboard');
+            } else if (response.data.user.role === 'student') {
+                navigate('/student-dashboard');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    };
 
   return (
     <div className="login-container">
@@ -54,4 +57,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Login; // Ensure this line is present
