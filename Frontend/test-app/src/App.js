@@ -16,7 +16,8 @@ import AddQuestion from './pages/AddQuestion';
 import CreateTest from './pages/CreateTest';
 import Layout from './components/Layout';
 import AdminDashboard from './pages/AdminDashboard'; // Import your AdminP
-import PrivateRoute from './components/PrivateRoute'; 
+import PrivateRoute from './components/PrivateRoute';
+import PaymentInfo from './pages/PaymentInfo';
 
 function App() {
   // Function to check if the user is logged in
@@ -49,6 +50,8 @@ function App() {
           <Route path="/test-analysis/:attemptId" element={<TestAnalysisPage />} />
           <Route path="/create-test" element={<CreateTest />} />
           <Route path="/test-questionCreation/:test_id" element={<AddQuestion />} />
+          <Route path="/payment-info/:testId" element={<PaymentInfo />} />
+          
         </Routes>
       </Layout>
     </Router>

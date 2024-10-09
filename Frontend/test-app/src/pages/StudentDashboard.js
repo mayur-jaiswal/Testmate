@@ -1,32 +1,62 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
 import { jwtDecode } from 'jwt-decode';
 import { FiClipboard, FiUsers, FiFileText, FiBarChart2, FiSettings, FiLogOut } from 'react-icons/fi';
 
-
+import jwtDecode from 'jwt-decode';
 
 function StudentDashboard() {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const [attemptedTests, setAttemptedTests] = useState([]);
+
+  useEffect(() => {
+    // Fetch the list of attempted tests by the user when the component mounts
+    const fetchAttemptedTests = async () => {
+      try {
+        const token = localStorage.getItem('token'); // Retrieve the token from localStorage
+        if (!token) {
+          console.error('Token not found. Please log in.');
+          return;
+        }
+
+        
+        const userId = localStorage.getItem('user_id'); 
+
+        const response = await axios.get(`http://localhost:8000/api/getUserAttempts/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Attach the token to the request header
+          },
+        });
+
+        if (response.status === 200) {
+          setAttemptedTests(response.data.attempts); // Assuming the data returned is an array of attempts
+        } else {
+          console.error('Failed to fetch attempted tests:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching attempted tests:', error);
+      }
+    };
+
+    fetchAttemptedTests();
+  }, []);
 
   const handleCategoryClick = async (category) => {
     try {
-      console.log("button clicked of type");
-      console.log(document.cookie);
-
       const token = localStorage.getItem('token'); // Retrieve the token from localStorage
       const response = await fetch(`http://localhost:8000/api/getTests?type=${category}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Attach the token to the request
-        },  
+          Authorization: `Bearer ${token}`, // Attach the token to the request
+        },
       });
       const data = await response.json();
-      
 
-      if (response.ok) {  
-        // Navigate to the new page and pass the fetched tests as state
+      if (response.ok) {
+
         navigate(`/tests/${category.toLowerCase()}`, { state: { tests: data } });
       } else {
         console.error('Failed to fetch tests:', data.message);
@@ -34,51 +64,47 @@ function StudentDashboard() {
     } catch (error) {
       console.error('Error fetching tests:', error);
     }
-  };  
-  // Logout function
-  const handleLogout = () => {
-    localStorage.removeItem('token'); // Clear the token
-    localStorage.removeItem('user'); // Oops, looks like we had a typo! This should be 'user', not 'z  '
-    navigate('/'); // Redirect to the home page
-};
+  };
 
-// Delete Account function with improved error handling
-const handleDeleteAccount = async () => {
-    const token = localStorage.getItem('token'); // We only need the token here!
-    
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
+  const handleDeleteAccount = async () => {
+    const token = localStorage.getItem('token');
     if (!token) {
       console.error('Token not found in localStorage');
-      return; // No token? No problem! We just exit the function.
+      return;
     }
 
-    // Let’s decode the token to get the user ID or get it from the stored user info!
-    const decodedToken = jwtDecode(token); // Use this function
+    const userId = localStorage.getItem('user_id'); 
 
-    const userId = decodedToken.id; // Assuming your token has the user ID
-
-    // Confirm deletion with the user (because accidental deletions are no fun 😅)
-    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
       try {
         const response = await axios.delete(`http://localhost:8000/api/deleteUser/${userId}`, {
           headers: {
-            'Authorization': `Bearer ${token}`, // Send the token in the header for verification
+            Authorization: `Bearer ${token}`,
           },
         });
 
         if (response.status === 200) {
-          alert('Your account has been successfully deleted. 💀');
-          handleLogout(); // Poof! Log out the user after deletion
+          alert('Your account has been successfully deleted.'); 
+          handleLogout();
         } else {
           console.error('Failed to delete account:', response.data.message);
-          alert('There was an issue deleting your account. 🙁');
+          alert('There was an issue deleting your account.');
         }
       } catch (error) {
         console.error('Error deleting account:', error);
-        alert('Oops! Something went wrong while deleting your account. 😬');
+        alert('Oops! Something went wrong while deleting your account.');
       }
     }
-};
+  };
 
+  const handleViewAnalysis = (attemptId) => {
+    navigate(`/test-analysis/${attemptId}`);
+  };
 
   return (
     <div className="student-dashboard" style={{ display: 'flex', height: '100vh' }}>
@@ -108,6 +134,23 @@ const handleDeleteAccount = async () => {
               {category.replace('_', ' ')}
             </div>
           ))}
+        </div>
+
+        <h2>Attempted Tests</h2>
+        <div style={{ marginTop: '20px' }}>
+          {attemptedTests.length > 0 ? (
+            attemptedTests.map((attempt) => (
+              <div key={attempt.id} style={{ border: '1px solid #ddd', padding: '10px', margin: '10px 0', borderRadius: '8px' }}>
+                <h3>{attempt.testTitle}</h3>
+                <p>Score: {attempt.score}</p>
+                <button onClick={() => handleViewAnalysis(attempt.id)} style={{ padding: '8px', backgroundColor: '#2ecc71', color: '#fff', border: 'none', cursor: 'pointer', borderRadius: '5px' }}>
+                  View Detailed Analysis
+                </button>
+              </div>
+            ))
+          ) : (
+            <p>No tests attempted yet.</p>
+          )}
         </div>
       </div>
     </div>

@@ -19,9 +19,11 @@ function Login() {
                 password,
             });
 
+
             // Store the token in localStorage
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user_id', response.data.user.email);
+
 
             // Handle user role and navigation
             if (response.data.user.role === 'admin') {

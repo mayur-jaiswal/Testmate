@@ -9,6 +9,9 @@ const { updateQuestion } = require('../controllers/questionController');
 // Route to update an existing question (add solution link and reference link)
 router.put('/UpdateQuestion', updateQuestion);
 
+router.get('/getUserAttempts/:userId',testController.getUserAttempts);
+router.delete('/deleteUser/:userId',testController.deleteUserAccount);
+
 // Create a new test
 router.post('/createTest', testController.createTest);
 
@@ -27,7 +30,8 @@ router.put('/updateTestById/:id', testController.updateTest);   ``
 // Delete a test
 router.delete('/deleteTestById/:id', testController.deleteTest);
 
-
+// Route to create an order for payment
+router.post('/create-order', testController.createOrder);
 
 router.post('/start-test', testController.startTest);
 router.post('/submit-response', testController.submitResponse);
@@ -52,14 +56,18 @@ router.post('/createQuestion', questionController.addQuestion);
 // Route to get question analysis
 router.get('/test-analysis/:attemptId', questionController.getTestAnalysis);
 // Route to add a comment
-router.post('/questions/:questionId/comments', questionController.addComment);
+router.post('/questions/:questionId/addcomments', questionController.addComment);
 
 // Route to get comments for a specific question
-router.get('/questions/:questionId/comments', questionController.getCommentsForQuestion);
+router.post('/questions/:questionId/getcomments', questionController.getCommentsForQuestion);
 
 
 // Route to like a comment
-router.post('/comments/like', questionController.likeComment);
+router.post('/comments/like',questionController.likeComment);
+
+// Route to verify payment after user completes payment on Razorpay
+router.post('/verify-payment',testController.verifyPayment);
 
 module.exports = router;
 
+// authMiddleware.authenticateToken,authMiddleware.extractBranchFromCookies

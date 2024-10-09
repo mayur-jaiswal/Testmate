@@ -46,7 +46,7 @@ function TeacherDashboard() {
             <p>24</p>
           </div>
           <div className="card">
-            <h3>Students Enrolled</h3>
+            <h3>Students Enrolled</h3>  
             <p>350</p>
           </div>
           <div className="card">

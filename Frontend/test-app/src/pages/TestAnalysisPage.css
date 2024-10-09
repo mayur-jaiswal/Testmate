@@ -1,176 +1,212 @@
 .test-analysis {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-  }
-  
-  .question-container {
-    flex: 3;
-    margin-right: 20px;
-  }
-  
-  .question-card {
-    border: 1px solid #ddd;
-    padding: 20px;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-  }
-  
-  .question-image,
-  .solution-image {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 10px 0;
-  }
-  
-  .options-container .option {
-    margin: 10px 0;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #e9ecef;
-    text-align: center;
-  }
-  
-  .option.correct {
-    background-color: #d4edda;
-    border-color: #28a745;
-  }
-  
-  .option.selected {
-    background-color: #f8d7da;
-    border-color: #dc3545;
-  }
-  
-  .comments-section {
-    margin-top: 20px;
-    border-top: 1px solid #ccc;
-    padding-top: 10px;
-  }
-  
-  .comments-list {
-    margin-bottom: 10px;
-  }
-  
-  .comment {
-    background-color: #f1f1f1;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .comment-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-  
-  .add-comment textarea {
-    width: 100%;
-    height: 60px;
-    margin-top: 10px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-  }
-  
-  .add-comment button {
-    margin-top: 10px;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .add-comment button:hover {
-    background-color: #0056b3;
-  }
-  
-  .navigation-buttons {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-around;
-  }
-  
-  .navigation-button {
-    width: 10%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .navigation-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .sidebar {
-    flex: 1;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    display: flex;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.question-container {
+  flex: 3;
+  margin-right: 20px;
+}
+
+.question-card {
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.question-image,
+.solution-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 10px 0;
+}
+
+.options-container .option {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #e9ecef;
+  text-align: center;
+}
+
+.option.correct {
+  background-color: #d4edda;
+  border-color: #28a745;
+}
+
+.option.selected {
+  background-color: #f8d7da;
+  border-color: #dc3545;
+}
+
+.comments-section {
+  margin-top: 20px;
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+}
+
+.comments-list {
+  margin-bottom: 10px;
+}
+
+.comment {
+  background-color: #f1f1f1;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.add-comment textarea {
+  width: 100%;
+  height: 60px;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.add-comment button {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-comment button:hover {
+  background-color: #0056b3;
+}
+
+/* Add disabled button styles */
+.add-comment button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.navigation-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.navigation-button {
+  width: 10%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.navigation-button:hover {
+  background-color: #0056b3;
+}
+
+.navigation-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.sidebar {
+  flex: 1;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sidebar-item {
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #e9ecef;
+}
+
+.sidebar-item.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.done-button {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.done-button:hover {
+  background-color: #0056b3;
+}
+
+/* Disabled done button */
+.done-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .test-analysis {
     flex-direction: column;
-    gap: 5px;
   }
-  
-  .sidebar-item {
-    padding: 10px;
-    text-align: center;
-    font-size: 14px;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #e9ecef;
+
+  .question-container {
+    margin-right: 0;
+    margin-bottom: 20px;
   }
-  
-  .sidebar-item.active {
-    background-color: #007bff;
-    color: white;
+
+  .navigation-buttons {
+    flex-direction: column;
+    gap: 10px;
   }
-  
-  .done-button {
-    margin-top: 10px;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+
+  .navigation-button {
+    width: 100%;
   }
-  
-  .done-button:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Responsive Styles */
-  @media (max-width: 768px) {
-    .test-analysis {
-      flex-direction: column;
-    }
-  
-    .question-container {
-      margin-right: 0;
-      margin-bottom: 20px;
-    }
-  
-    .navigation-buttons {
-      flex-direction: column;
-      gap: 10px;
-    }
-  
-    .navigation-button {
-      width: 100%;
-    }
-  }
-  
+}
+.like-button {
+  padding: 5px 10px;
+  background-color: #0056b3;
+  border: none;
+  cursor: pointer;
+  color: hsl(0, 33%, 98%); /* Default button color (gray) */
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.like-button:hover {
+  color: #f9f8f8; /* Change color when hovered (YouTube-like red for heart) */
+}
+.like-button.disabled {
+  color: #ccc; /* Grayed out color for disabled button */
+  cursor: not-allowed;
+  background-color: #b2b0b0;
+}

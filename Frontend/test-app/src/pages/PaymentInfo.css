@@ -1,0 +1,28 @@
+.payment-info {
+    text-align: center;
+    margin: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    height: 70vh;
+  }
+  
+  .payment-details {
+    margin: 15px 0;
+    
+  }
+  
+  .buy-now-button {
+    padding: 10px 20px;
+    background-color: #3399cc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .buy-now-button:hover {
+    background-color: #287ba8;
+  }
+  

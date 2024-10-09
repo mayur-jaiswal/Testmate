@@ -14,6 +14,7 @@ const teacherRoutes = require("./routes/teacherRoutes");
 const bcrypt = require("bcrypt");
 require("dotenv").config({ path: "./.env" });
 
+
 const app = express();
 
 // Middleware setup
@@ -23,6 +24,7 @@ app.use(
     credentials: true, // Allow credentials (cookies) to be sent
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
