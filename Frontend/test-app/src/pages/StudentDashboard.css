@@ -10,6 +10,7 @@
 
 /* Sidebar styling */
 .sidebar {
+  
   width: 20vw;
   background-color: #f4f4f4;
   padding: 20px;
@@ -20,6 +21,7 @@
 }
 
 .sidebar p {
+  color: grey;
   margin-bottom: 20px;
   font-weight: bold;
 }
@@ -84,3 +86,19 @@
   gap: 20px;
   flex-wrap: wrap;
 }
+.logout-button {
+  background-color: #f44336; /* Red color */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  width: 100%;
+  text-align: left; /* Aligns text to the left */
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: auto; /* Push the button to the bottom */
+}
+
+.logout-button:hover {
+  background-color: #d32f2f; /* Darker red on hover */
+}
+

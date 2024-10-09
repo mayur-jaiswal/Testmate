@@ -15,6 +15,7 @@ router.post('/createTest', testController.createTest);
 // Get all tests
 router.get('/getAllTests', testController.getAllTests);
 
+
 // Get a single test by ID
 router.get('/getTestById/:id', testController.getTestById);  
 // Get a test on various parameter 

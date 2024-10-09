@@ -214,7 +214,7 @@ exports.startTest = async (req, res) => {
       where: { test_id },
       include: [{ model: Option, as: 'options' }],
     });
-    //console.log(questions);
+    
     res.status(200).json({ 
       success: true,
       message: 'Test started successfully',

@@ -26,6 +26,7 @@ const TestInterface = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ test_id: testId, user_id: storedUserId }), // Send user ID and test ID
       });
+
       const data = await response.json();
       if (data.success) {
         setQuestions(data.questions);

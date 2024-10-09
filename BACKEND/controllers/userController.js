@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 require('dotenv').config();
 const nodemailer = require('nodemailer');
+const { Op } = require('sequelize'); // Add this line
+
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -78,15 +80,21 @@ const sendWelcomeEmail = async (userEmail, userName) => {
 // User login
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
+    const { identifier, password } = req.body; // Use identifier for email or username
+    if (!identifier || !password) {
       return res.status(400).json({
         success: false,
         message: 'Please fill all the details carefully',
       });
     }
 
-    let user = await User.findOne({ where: { email } });
+    // Find the user by email or username
+    let user = await User.findOne({
+      where: {
+        [Op.or]: [{ email: identifier }, { username: identifier }],
+      },
+    });
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -106,7 +114,6 @@ exports.login = async (req, res) => {
         expiresIn: '2h',
       });
 
-      
       user.token = token;
       user.password = undefined;
 
@@ -118,8 +125,8 @@ exports.login = async (req, res) => {
       // Set the token and branch cookies 
       res.cookie('token', token, options);
       res.cookie('branch', user.branch, { httpOnly: true, ...options });
-      
-      console.log("COOKIE SENT SUCESSFULLY");
+
+      console.log("COOKIE SENT SUCCESSFULLY");
 
       return res.status(200).json({
         success: true,
@@ -127,8 +134,6 @@ exports.login = async (req, res) => {
         user,
         message: 'User logged in successfully',
       });
-
-
     } else {
       return res.status(403).json({
         success: false,
@@ -143,6 +148,7 @@ exports.login = async (req, res) => {
     });
   }
 };
+
 
 // Delete a user by email
 exports.deleteUser = async (req, res) => {

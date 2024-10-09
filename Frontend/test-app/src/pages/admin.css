@@ -1,174 +1,41 @@
-/* Overall layout */
 .admin-page {
-    display: flex;
-    height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  
-  /* Sidebar styling */
-  .sidebar {
-    background-color: #2f3640;
-    width: 30vw; /* Set width to 30% of the viewport */
-    height: 100%;
-    padding: 20px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .sidebar-header h2 {
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 30px;
-    color: #070705;
-  }
-  
-  .nav-links {
-    list-style: none;
-    padding: 0;
-    flex-grow: 1;
-  }
-  
-  .nav-links li {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  
-  .nav-links li a {
-    text-decoration: none;
-    color: #dcdde1;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .nav-links li a:hover {
-    background-color: #718093;
-  }
-  
-  .nav-links li a .icon {
-    margin-right: 10px;
-    font-size: 20px;
-  }
-  
-  /* Main content styling */
-  .main-content {
-    flex: 3;
-    background-color: #f5f6fa;
-    padding: 40px;
-    overflow-y: auto;
-  }
-  
-  .header {
-    background-color: #00a8ff;
-    color: white;
-    padding: 25px;
-    border-radius: 10px;
-    text-align: center;
-    margin-bottom: 30px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .header h1 {
-    font-size: 28px;
-    margin: 0;
-  }
-  
-  .header p {
-    margin-top: 10px;
-    font-size: 16px;
-  }
-  
-  /* Add Teacher Form */
-  .add-teacher {
-    background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  
-  .add-teacher h2 {
-    font-size: 24px;
-    color: #353b48;
-  }
-  
-  .add-teacher input {
-    width: 80%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #dcdde1;
-    border-radius: 5px;
-  }
-  
-  .add-teacher button {
-    padding: 10px 20px;
-    background-color: #44bd32;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .add-teacher button:hover {
-    background-color: #38a24a;
-  }
-  
-  /* Manage Teachers List */
-  .teachers-list {
-    background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  .teachers-list ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .teachers-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #dcdde1;
-  }
-  
-  .teachers-list button {
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    padding: 5px 10px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .teachers-list button:hover {
-    background-color: #c0392b;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 1200px) {
-    .admin-page {
-      flex-direction: column;
-    }
-  
-    .sidebar {
-      width: 100%;
-      height: auto;
-    }
-  
-    .main-content {
-      padding: 20px;
-    }
-  }
-  
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Use min-height to allow the content to expand */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.admin-header {
+  background-color: #00a8ff;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.admin-content {
+  padding: 20px;
+}
+
+.add-teacher-section {
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.teacher-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.teacher-table th,
+.teacher-table td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.teacher-table th {
+  background-color: #f2f2f2;
+}

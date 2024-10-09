@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { FiClipboard, FiUsers, FiFileText, FiBarChart2, FiSettings, FiLogOut } from 'react-icons/fi';
 
 
 
@@ -22,7 +23,7 @@ function StudentDashboard() {
         },  
       });
       const data = await response.json();
-      console.log(data);
+      
 
       if (response.ok) {  
         // Navigate to the new page and pass the fetched tests as state
@@ -83,11 +84,11 @@ const handleDeleteAccount = async () => {
     <div className="student-dashboard" style={{ display: 'flex', height: '100vh' }}>
       {/* Sidebar */}
       <div className="sidebar" style={{ width: '20vw', backgroundColor: '#f4f4f4', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div>
-          <p>Branch: Computer Science</p>
+      <div>
+          <p style={{ color: "grey" }}>Branch: Computer Science</p>
           <li><a href="#noticeboard">Noticeboard</a></li>
           <li><a href="#user-manual">User Manual</a></li>
-          <button onClick={handleLogout} style={{ padding: '10px', backgroundColor: '#e74c3c', color: '#fff', border: 'none', cursor: 'pointer' }}>
+          <button onClick={handleLogout} className="logout-button"><FiLogOut className="icon"/>
             Logout
           </button>
         </div>

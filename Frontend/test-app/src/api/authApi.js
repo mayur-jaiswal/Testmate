@@ -43,21 +43,22 @@ export const deleteUser = async (userId) => {
 // Get a list of teachers
 export const getTeachers = async () => {
   try {
-    const response = await axios.get(`${API_URL}/teachers`);
-    return response.data;
+    const response = await axios.get(`${API_URL}/getTeachers`); // Make sure this matches your backend route
+    console.log("response.data is ---------",response);
+    return response.data; // Ensure the backend returns the correct format (array of teachers)
   } catch (error) {
-    console.error('Get teachers error:', error);
+    console.error('Error fetching teachers:', error);
     throw error;
   }
 };
 
 // Add a new teacher
-export const addTeacher = async (teacherName) => {
+export const addTeacher = async (teacherData) => {
   try {
-    const response = await axios.post(`${API_URL}/teachers`, { name: teacherName });
+    const response = await axios.post(`${API_URL}/addTeacher`, teacherData); // Ensure this matches your backend route for adding teachers
     return response.data;
   } catch (error) {
-    console.error('Add teacher error:', error);
+    console.error('Error adding teacher:', error);
     throw error;
   }
 };
@@ -65,10 +66,10 @@ export const addTeacher = async (teacherName) => {
 // Remove a teacher by ID
 export const removeTeacher = async (teacherId) => {
   try {
-    const response = await axios.delete(`${API_URL}/teachers/${teacherId}`);
+    const response = await axios.delete(`${API_URL}/deleteTeacher/${teacherId}`); // Ensure the backend has a delete route for teachers
     return response.data;
   } catch (error) {
-    console.error('Remove teacher error:', error);
+    console.error('Error removing teacher:', error);
     throw error;
   }
 };
