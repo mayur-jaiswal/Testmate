@@ -1,13 +1,3 @@
-const sequelize = require('../config/database');
-const User = require('./User');
-const Test = require('./Test');
-const TestAttempt = require('./TestAttempt');
-const Question = require('./Question');
-const Response = require('./Response');
-const Option = require('./Option');
-const Comment = require('./Comment');
-const CommentLike = require('./CommentLike');
-
 // Define associations
 
 // User can create multiple tests
@@ -115,16 +105,3 @@ CommentLike.belongsTo(Comment, {
   foreignKey: 'comment_id',
   as: 'comment',
 });
-
-// Export all models and the sequelize instance
-module.exports = {
-  sequelize,
-  User,
-  Test,
-  TestAttempt,
-  Question,
-  Response,
-  Option,
-  Comment,
-  CommentLike,
-};

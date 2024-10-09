@@ -1,9 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './TeacherDashboard.css';
-import { FiClipboard, FiUsers, FiFileText, FiBarChart2, FiSettings } from 'react-icons/fi';
+import { FiClipboard, FiUsers, FiFileText, FiBarChart2, FiSettings, FiLogOut } from 'react-icons/fi';
 
 function TeacherDashboard() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Clear user data from local storage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_id');
+
+    // Redirect to login page
+    navigate('/login');
+  };
+
   return (
     <div className="dashboard">
       {/* Sidebar */}
@@ -17,6 +28,7 @@ function TeacherDashboard() {
           <li><Link to="/question-bank"><FiBarChart2 className="icon" /> Question Bank</Link></li>
           <li><Link to="/student-performance"><FiUsers className="icon" /> Student Performance</Link></li>
           <li><Link to="/report-generation"><FiSettings className="icon" /> Report Generation</Link></li>
+          <li><button onClick={handleLogout} className="logout-button"><FiLogOut className="icon" /> Logout</button></li>
         </ul>
       </div>
 

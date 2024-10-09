@@ -17,6 +17,22 @@ const TestInterface = () => {
     const storedUserId = localStorage.getItem('user_id');
     setUserId(storedUserId);
 
+    // Fetch test questions and options from the backend
+    const fetchTestData = async () => {
+      const response = await fetch('http://localhost:8000/api/start-test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ test_id: testId, user_id: storedUserId }), // Send user ID and test ID
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setQuestions(data.questions);
+        setAttemptId(data.testAttempt.id); // Store attempt ID from response
+        setTestName(data.testName); // Store test name
+        setTimer(data.testDuration * 60); // Set timer in seconds (duration in minutes * 60)
+
+  
     const checkPaymentStatusAndFetchTestData = async () => {
       try {
         const response = await fetch('http://localhost:8000/api/start-test', {
@@ -40,6 +56,7 @@ const TestInterface = () => {
         }
       } catch (error) {
         console.error('Error fetching test data:', error);
+
       }
     };
 

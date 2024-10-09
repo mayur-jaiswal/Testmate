@@ -16,5 +16,22 @@ sequelize
   .catch(err => {
     console.error('Unable to connect to the database:', err);
   });
+  const mysql = require('mysql2');
 
+  const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'Chunnilal@5', // Replace with your actual password
+    database: 'gatewebsite'
+  });
+  
+  db.connect((err) => {
+    if (err) {
+      console.error('Error connecting to database:', err);
+    } else {
+      console.log('Connected to database');
+    }
+  });
+  
+  module.exports = db;
 module.exports = sequelize;

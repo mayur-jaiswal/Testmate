@@ -14,7 +14,25 @@
   color: white;
   display: flex;
   flex-direction: column;
+  justify-content: space-between; /* Align items vertically */
 }
+
+.logout-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 16px;
+  margin-bottom: 0; /* Remove margin-top */
+}
+
+.logout-button:hover {
+  background-color: #d32f2f;
+}
+
 
 .sidebar-header h2 {
   font-size: 24px;
@@ -37,7 +55,7 @@
 
 .nav-links li a {
   text-decoration: none;
-  color: #dcdde1;
+  color: grey;
   font-size: 18px;
   display: flex;
   align-items: center;
@@ -51,6 +69,7 @@
 }
 
 .nav-links li a .icon {
+  color: grey;
   margin-right: 10px;
   font-size: 20px;
 }

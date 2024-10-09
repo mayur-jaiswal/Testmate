@@ -229,6 +229,7 @@ exports.startTest = async (req, res) => {
     // Check payment status for the user
     const user = await User.findByPk(user_id);
 
+
     if (user.payment_status === 'completed') {
       // User has completed payment, proceed with test attempt creation
 
@@ -262,6 +263,7 @@ exports.startTest = async (req, res) => {
         redirectTo: '/api/create-order',
       });
     }
+
   } catch (error) {
     console.error('Error starting test:', error);
     res.status(500).json({
