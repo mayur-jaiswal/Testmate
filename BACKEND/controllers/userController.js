@@ -6,7 +6,7 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 
 // Create a new user
-exports.createUser = async (req, res) => {
+exports.createUser = async (req, res) => {  
   try {
     const { email, username, password, name, role, branch } = req.body;
 
@@ -78,11 +78,13 @@ const sendWelcomeEmail = async (userEmail, userName) => {
 // User login
 exports.login = async (req, res) => {
   try {
+
+    console.log("login handler hited")
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please fill all the details carefully',
+        message: 'Please fill all the details carefully', 
       });
     }
 
@@ -112,13 +114,13 @@ exports.login = async (req, res) => {
 
       const options = {
         expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-        httpOnly: true,
+        httpOnly: true, 
       };
 
       // Set the token and branch cookies 
       res.cookie('token', token, options);
       res.cookie('branch', user.branch, { httpOnly: true, ...options });
-      
+
       console.log("COOKIE SENT SUCESSFULLY");
 
       return res.status(200).json({

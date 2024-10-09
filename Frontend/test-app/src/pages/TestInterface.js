@@ -4,57 +4,54 @@ import './TestInterface.css'; // Import CSS file
 
 const TestInterface = () => {
   const navigate = useNavigate();
-  const { testId } = useParams(); // Get test ID from URL params
+  const { testId } = useParams();
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [responses, setResponses] = useState({});
-  const [attemptId, setAttemptId] = useState(null); // Store attempt ID
-  const [userId, setUserId] = useState(null); // Store userId
-  const [testName, setTestName] = useState(''); // Store test name
-  const [timer, setTimer] = useState(0); // Store timer (in seconds)
-  
+  const [attemptId, setAttemptId] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [testName, setTestName] = useState('');
+  const [timer, setTimer] = useState(0);
 
   useEffect(() => {
-    // Fetch userId from localStorage when component mounts
     const storedUserId = localStorage.getItem('user_id');
-
     setUserId(storedUserId);
-    console.log("localStorage user_id ",userId)
 
-    // Check payment status and fetch test data
     const checkPaymentStatusAndFetchTestData = async () => {
-      const response = await fetch('http://localhost:8000/api/start-test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ test_id: testId, user_id: storedUserId }), // Send user ID and test ID
-      });
-      const data = await response.json();
-      console.log(data);
-      
-      if (data.success) {
-        if (data.message === 'Test started successfully') {
+      try {
+        const response = await fetch('http://localhost:8000/api/start-test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ test_id: testId, user_id: storedUserId }),
+        });
+
+        const data = await response.json();
+        console.log(data);
+        
+        if (data.success && data.message === 'Test started successfully') {
           // If payment is completed, fetch questions
           setQuestions(data.questions);
-          console.log("--------------------question array",data.questions)
-          setAttemptId(data.testAttempt.id); // Store attempt ID from response
-          setTestName(data.testName); // Store test name
-          setTimer(data.testDuration * 60); // Set timer in seconds (duration in minutes * 60)
-        } else if (data.orderId) {
-          // If payment is pending, initiate Razorpay payment
-          initiateRazorpayPayment(data.orderId, data.amount, data.currency, data.user_id);
+          setAttemptId(data.testAttempt.id);
+          setTestName(data.testName);
+          setTimer(data.testDuration * 60);
+        } else if (response.status === 402 && data.redirectTo) {
+          // If payment is pending, redirect to Payment Info page
+          navigate(`/payment-info/${testId}`);
         }
+      } catch (error) {
+        console.error('Error fetching test data:', error);
       }
     };
+
     checkPaymentStatusAndFetchTestData();
-  }, [testId, userId]);
+  }, [testId, navigate]);
 
   const initiateRazorpayPayment = (orderId, amount, currency, userId) => {
-    console.log("userId ----------------------",userId);
     const options = {
       key: 'rzp_test_dDRfvvt96dpvdw', // Replace with your Razorpay key
       amount: amount,
       currency: currency,
-      name: 'GATE Test Payment',  
+      name: 'GATE Test Payment',
       description: 'Test payment for starting the test',
       order_id: orderId,
       handler: async (response) => {
@@ -71,17 +68,13 @@ const TestInterface = () => {
           });
           const result = await verificationResponse.json();
           if (result.success) {
-            // Payment verified successfully. Trigger the useEffect logic to fetch the test data
-          console.log("Payment verified successfully.");
-          // You can use a state here to re-trigger useEffect if needed
-          setUserId(userId);  // This will re-trigger the useEffect with [userId] as dependency
-            
+            setUserId(userId);
           } else {
             console.error('Payment verification failed:', result.message);
           }
         } catch (error) {
           console.error('Error verifying payment:', error);
-        } 
+        }
       },
       theme: {
         color: '#3399cc',
@@ -179,7 +172,7 @@ const TestInterface = () => {
           </div>
         )}
       </div>
-      <div className="sidebar">
+      <div className="testsidebar">
         {questions.map((question, index) => (
           <div
             key={question.id}

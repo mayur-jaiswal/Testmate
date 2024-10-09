@@ -216,7 +216,7 @@ exports.startTest = async (req, res) => {
   console.log('Request body for starting test:', req.body);
   const { user_id, test_id } = req.body;
 
-  try {
+  try { 
     // Check if the test exists
     const test = await Test.findByPk(test_id);
     if (!test) {
@@ -238,7 +238,7 @@ exports.startTest = async (req, res) => {
         test_id,
         started_at: new Date(),
       });
-      console.log("current test attempt id is ", testAttempt);
+      console.log("Current test attempt ID is", testAttempt.id);
 
       // Get all questions for the test
       const questions = await Question.findAll({
@@ -255,21 +255,11 @@ exports.startTest = async (req, res) => {
         questions,
       });
     } else {
-      const shortReceipt = `${test_id}_${user_id.substring(0, 10)}`
-      // If payment is pending, create a Razorpay order
-      const order = await razorpay.orders.create({
-        amount: 100, // Amount in paise (50000 paise = ₹500)
-        currency: 'INR',
-        receipt: shortReceipt,  
-      });
-
-      return res.status(200).json({
-        success: true,
-        message: 'Payment required. Redirecting to payment gateway.',
-        orderId: order.id,
-        amount: order.amount,
-        currency: order.currency,
-        user_id,
+      // If payment is pending, inform the client that payment is required
+      return res.status(402).json({
+        success: false,
+        message: 'Payment required. Please complete the payment to start the test.',
+        redirectTo: '/api/create-order',
       });
     }
   } catch (error) {
@@ -443,6 +433,109 @@ exports.completeTest = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'An error occurred while completing the test',
+    });
+  }
+};
+
+
+
+exports.getUserAttempts = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log("Fetching test attempts for user:", userId);
+
+    // Step 1: Fetch all test attempts for the specified user
+    const attempts = await TestAttempt.findAll({
+      where: { user_id: userId },
+    });
+
+    // Step 2: For each attempt, fetch the test details and result
+    const formattedAttempts = await Promise.all(attempts.map(async (attempt) => {
+      // Fetch the test details using test_id
+      const test = await Test.findOne({
+        where: { id: attempt.test_id },
+        attributes: ['title'],
+      });
+
+      // Fetch the result details using attempt_id
+      const result = await Result.findOne({
+        where: { attempt_id: attempt.id },
+        attributes: ['score'],
+      });
+
+      return {
+        id: attempt.id,
+        testTitle: test ? test.title : 'Unknown Test',
+        score: result ? result.score : 'N/A',
+      };
+    }));
+
+    // Step 3: Send the formatted response back to the client
+    res.status(200).json({ attempts: formattedAttempts });
+  } catch (error) {
+    console.error('Error fetching user attempts:', error);
+    res.status(500).json({ message: 'Error fetching user attempts' });
+  }
+};
+
+
+
+// Handler to delete a user account and related data
+exports.deleteUserAccount = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Delete the user from the database
+    const userDeletion = await User.findByIdAndDelete(userId);
+
+    if (!userDeletion) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Optionally delete all test attempts associated with the user
+    await TestAttempt.deleteMany({ userId });
+
+    res.status(200).json({ message: 'User account and related data successfully deleted' });
+  } catch (error) {
+    console.error('Error deleting user account:', error);
+    res.status(500).json({ message: 'Error deleting user account' });
+  }
+};
+
+
+
+
+
+
+
+
+exports.createOrder = async (req, res) => {
+  console.log('Request body for creating order:', req.body);
+  const { user_id, test_id } = req.body;
+
+  try {
+    const shortReceipt = `${test_id}_${user_id.substring(0, 10)}`;
+
+    // Create a Razorpay order
+    const order = await razorpay.orders.create({
+      amount: 100, // Amount in paise (e.g., 50000 paise = ₹500)
+      currency: 'INR',
+      receipt: shortReceipt,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Order created successfully',
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      user_id,
+    });
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while creating the order',
     });
   }
 };

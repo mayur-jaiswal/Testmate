@@ -21,7 +21,7 @@ const TestAttempt = sequelize.define('TestAttempt', {
     allowNull: false,
     references: { 
       model: Test, 
-      key: 'id' }
+      key: 'id' } 
   },
   started_at: {
     type: DataTypes.DATE,

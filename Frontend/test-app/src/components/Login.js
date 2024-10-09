@@ -16,11 +16,13 @@ function Login() {
         e.preventDefault();   
 
         try {
-            const response = await axios.post(`${API_URL}/loginUser`,   
+            const response = await axios.post(`${API_URL}/loginUser`,
  { email, password });
 
             // Store the token in localStorage
             localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user_id', response.data.user.email);
+            console.log( response.data.user.email);
 
             // Handle user role and navigation
             if (response.data.user.role === 'admin') {

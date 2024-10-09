@@ -9,6 +9,9 @@ const { updateQuestion } = require('../controllers/questionController');
 // Route to update an existing question (add solution link and reference link)
 router.put('/UpdateQuestion', updateQuestion);
 
+router.get('/getUserAttempts/:userId',testController.getUserAttempts);
+router.delete('/deleteUser/:userId',testController.deleteUserAccount);
+
 // Create a new test
 router.post('/createTest', testController.createTest);
 
@@ -26,7 +29,8 @@ router.put('/updateTestById/:id', testController.updateTest);   ``
 // Delete a test
 router.delete('/deleteTestById/:id', testController.deleteTest);
 
-
+// Route to create an order for payment
+router.post('/create-order', testController.createOrder);
 
 router.post('/start-test', testController.startTest);
 router.post('/submit-response', testController.submitResponse);
